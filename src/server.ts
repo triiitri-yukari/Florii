@@ -329,5 +329,5 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
 }
 
 export function summarizeForDashboard(state: GardenState): Record<string, unknown> {
-  return { ...gardenSnapshot(state), state };
+  return { ...gardenSnapshot(state), catalog: SPECIES_LIST, state };
 }

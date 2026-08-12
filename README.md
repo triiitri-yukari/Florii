@@ -18,7 +18,7 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 - Second-generation plants inherit their parent's appearance and attributes with gentle mutation
 - Simulated weather by default, or optional real weather from Open-Meteo
 - MCP tools, resources, a reusable agent prompt, and server-wide instructions
-- A local, read-only visual garden at `http://127.0.0.1:4141`
+- A responsive, read-only human garden view at `http://127.0.0.1:4141`, with individual plant profiles, a living collection, and a filterable seed library
 - Real, demo, and test time scales using the same simulation rules
 
 ## The pace
