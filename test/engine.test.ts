@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, visitGarden } from "../src/engine.js";
+import { advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, transplantPlant, visitGarden } from "../src/engine.js";
 
 const start = new Date("2026-03-01T00:00:00.000Z");
 
@@ -122,4 +122,29 @@ test("the herbarium permanently records species, variations, and notable finds",
   assert.equal(herbarium.speciesTotal, 12);
   assert.equal(herbarium.variantCount, record.variants.length);
   assert.equal(herbarium.entries.length, 1);
+});
+
+test("transplanting frees a space while preserving the complete resident record", () => {
+  const garden = createGarden(start, { seed: 212 });
+  const residents = Array.from({ length: 48 }, (_, index) => plantSeed(garden, "moonbell", { nickname: `Moon ${index + 1}` }, start));
+  assert.throws(() => plantSeed(garden, "starpetal", {}, start), /full enough/i);
+
+  const chosen = residents[12];
+  assert.ok(chosen);
+  const archived = transplantPlant(garden, chosen.id, { note: "Moved beside the old gate." }, start);
+  assert.equal(garden.plants.length, 47);
+  assert.equal(archived.plant.id, chosen.id);
+  assert.deepEqual(archived.plant.phenotype, chosen.phenotype);
+  assert.equal(archived.plant.generation, chosen.generation);
+  assert.equal(archived.plant.origin, chosen.origin);
+  assert.equal(archived.note, "Moved beside the old gate.");
+  assert.ok(garden.chronicle.some((entry) => entry.title.includes("was transplanted")));
+
+  const replacement = plantSeed(garden, "starpetal", { nickname: "A New Corner" }, start);
+  assert.equal(garden.plants.length, 48);
+  assert.ok(garden.plants.includes(replacement));
+  const herbarium = gardenSnapshot(garden).herbarium as { archivedCount: number; archivedResidents: Array<{ id: string; note: string }> };
+  assert.equal(herbarium.archivedCount, 1);
+  assert.equal(herbarium.archivedResidents[0]?.id, chosen.id);
+  assert.equal(herbarium.archivedResidents[0]?.note, "Moved beside the old gate.");
 });

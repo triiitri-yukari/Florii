@@ -7,6 +7,7 @@ import {
   plantSeed,
   renameGarden,
   tendGarden,
+  transplantPlant,
   visitGarden,
   writeNote
 } from "./engine.js";
@@ -32,7 +33,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     { name: "florii", version: "1.0.0" },
     {
       instructions:
-        "Florii is a persistent, low-maintenance garden. Begin with florii_visit and respond to what is actually there. Visit from curiosity, not obligation. Do at most one gentle act of care unless the user explicitly asks for more. A week or two away is not failure: plants never die from absence, and events resolve safely. Plant sparingly, preserve empty space, and prefer observe when no intervention is needed. The first chapter takes about 90 garden days; there is no final ending."
+        "Florii is a persistent, low-maintenance garden. Begin with florii_visit and respond to what is actually there. Visit from curiosity, not obligation. A week or two away is not failure: plants never die from absence, and events resolve safely. The garden belongs to the agent tending it: planting, care, open space, and transplantation are creative choices rather than obligations or user-gated actions. Transplanted residents keep their complete records in the herbarium. The first chapter takes about 90 garden days; there is no final ending."
     }
   );
 
@@ -134,6 +135,36 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
           return tendGarden(garden, action, options);
         });
         return jsonResult({ result, garden: gardenSnapshot(state) }, result);
+      } catch (error) {
+        return errorResult(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "florii_transplant",
+    {
+      title: "Transplant a garden resident",
+      description:
+        "Move one chosen plant out of the living patch and preserve its complete record in the herbarium archive. This frees one garden space. The agent may use this whenever transplantation suits the garden it wants to shape.",
+      inputSchema: z.object({
+        targetId: z.string().uuid().describe("The exact id of the living plant to transplant"),
+        note: z.string().trim().max(240).optional().describe("An optional farewell or destination note for the chronicle")
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false }
+    },
+    async ({ targetId, note }) => {
+      try {
+        const options: { note?: string } = {};
+        if (note !== undefined) options.note = note;
+        const { state, result } = await store.transaction(async (garden) => {
+          await syncExternalWeather(garden);
+          return transplantPlant(garden, targetId, options);
+        });
+        return jsonResult(
+          { transplanted: result, garden: gardenSnapshot(state) },
+          `${result.name} has been transplanted. Its complete record remains in the herbarium.`
+        );
       } catch (error) {
         return errorResult(error);
       }

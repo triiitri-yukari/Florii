@@ -52,6 +52,7 @@ test("older saves receive stable phenotypes when loaded", async () => {
   assert.match(await readFile(store.path, "utf8"), /"phenotype"/);
   assert.equal(migrated.herbarium.species[0]?.species, "rainmint");
   assert.equal(migrated.herbarium.species[0]?.individualsSeen, 1);
+  assert.deepEqual(migrated.herbarium.archivedPlants, []);
   assert.match(await readFile(store.path, "utf8"), /"herbarium"/);
   assert.equal(migrated.revision, 6);
 });

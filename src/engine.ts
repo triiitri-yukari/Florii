@@ -190,7 +190,7 @@ export function createGarden(
     biodiversity: 15,
     tranquility: 70,
     plants: [],
-    herbarium: { registeredPlantIds: [], species: [] },
+    herbarium: { registeredPlantIds: [], species: [], archivedPlants: [] },
     weather: [],
     weatherConfig: {
       source: "simulated",
@@ -298,16 +298,21 @@ function displayPlant(plant: Plant): string {
 }
 
 function ensureHerbariumShape(state: GardenState): boolean {
+  let changed = false;
   const legacyState = state as GardenState & { herbarium?: GardenState["herbarium"] };
   if (!legacyState.herbarium || !Array.isArray(legacyState.herbarium.species)) {
-    state.herbarium = { registeredPlantIds: [], species: [] };
+    state.herbarium = { registeredPlantIds: [], species: [], archivedPlants: [] };
     return true;
   }
   if (!Array.isArray(state.herbarium.registeredPlantIds)) {
     state.herbarium.registeredPlantIds = [];
-    return true;
+    changed = true;
   }
-  return false;
+  if (!Array.isArray(state.herbarium.archivedPlants)) {
+    state.herbarium.archivedPlants = [];
+    changed = true;
+  }
+  return changed;
 }
 
 function recordHerbariumDiscovery(state: GardenState, plant: Plant, gardenDay: number): boolean {
@@ -663,6 +668,43 @@ export function plantSeed(
   return plant;
 }
 
+export function transplantPlant(
+  state: GardenState,
+  targetId: string,
+  options: { note?: string } = {},
+  now = new Date()
+): GardenState["herbarium"]["archivedPlants"][number] {
+  advanceGarden(state, now);
+  const index = state.plants.findIndex((plant) => plant.id === targetId);
+  if (index < 0) throw new Error(`No living plant with id ${targetId} lives here.`);
+  const plant = state.plants[index];
+  if (!plant) throw new Error(`No living plant with id ${targetId} lives here.`);
+  ensurePlantPhenotype(state, plant);
+  ensureHerbarium(state);
+  if (state.herbarium.archivedPlants.some((entry) => entry.plant.id === plant.id)) {
+    throw new Error(`${displayPlant(plant)} is already preserved in the herbarium archive.`);
+  }
+
+  const archived = {
+    plant: structuredClone(plant),
+    name: displayPlant(plant),
+    archivedAt: now.toISOString(),
+    archivedGardenDay: Math.floor(state.simulatedDays),
+    ...(options.note?.trim() ? { note: options.note.trim() } : {})
+  };
+  state.herbarium.archivedPlants.push(archived);
+  state.plants.splice(index, 1);
+  addChronicle(state, {
+    kind: "care",
+    title: `${archived.name} was transplanted`,
+    text: options.note?.trim()
+      ? `It left the living patch for a new place. ${options.note.trim()}`
+      : "It left the living patch for a new place, while its story stayed in the herbarium.",
+    icon: "↟"
+  });
+  return archived;
+}
+
 export function tendGarden(
   state: GardenState,
   action: TendAction,
@@ -795,6 +837,23 @@ export function gardenSnapshot(state: GardenState): Record<string, unknown> {
     variants: entry.variants.map((variant) => ({ ...variant, phenotype: structuredClone(variant.phenotype) })),
     notableFinds: entry.notableFinds.map((find) => ({ ...find }))
   }));
+  const archivedResidents = state.herbarium.archivedPlants.map((entry) => ({
+    id: entry.plant.id,
+    species: entry.plant.species,
+    name: entry.name,
+    stage: entry.plant.stage,
+    health: Math.round(entry.plant.health),
+    ageDays: entry.plant.ageDays,
+    blooms: entry.plant.bloomCount,
+    position: { x: Math.round(entry.plant.x), y: Math.round(entry.plant.y) },
+    generation: entry.plant.generation,
+    origin: entry.plant.origin,
+    traits: entry.plant.traits,
+    phenotype: entry.plant.phenotype,
+    archivedAt: entry.archivedAt,
+    archivedGardenDay: entry.archivedGardenDay,
+    note: entry.note ?? null
+  }));
   return {
     name: state.name,
     gardenDay: Math.floor(state.simulatedDays),
@@ -835,6 +894,8 @@ export function gardenSnapshot(state: GardenState): Record<string, unknown> {
       speciesTotal: SPECIES_LIST.length,
       variantCount: herbariumEntries.reduce((total, entry) => total + entry.variants.length, 0),
       notableCount: herbariumEntries.reduce((total, entry) => total + entry.notableFinds.length, 0),
+      archivedCount: archivedResidents.length,
+      archivedResidents,
       entries: herbariumEntries
     },
     milestones: state.milestones,

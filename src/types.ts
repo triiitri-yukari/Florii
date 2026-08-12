@@ -107,9 +107,18 @@ export interface HerbariumSpecies {
   notableFinds: HerbariumFind[];
 }
 
+export interface ArchivedPlant {
+  plant: Plant;
+  name: string;
+  archivedAt: string;
+  archivedGardenDay: number;
+  note?: string;
+}
+
 export interface Herbarium {
   registeredPlantIds: string[];
   species: HerbariumSpecies[];
+  archivedPlants: ArchivedPlant[];
 }
 
 export interface WeatherDay {

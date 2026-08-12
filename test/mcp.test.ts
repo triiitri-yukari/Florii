@@ -22,6 +22,7 @@ test("the built stdio server completes a real MCP handshake and tool call", asyn
     assert.ok(names.includes("florii_visit"));
     assert.ok(names.includes("florii_weather"));
     assert.ok(names.includes("florii_plant"));
+    assert.ok(names.includes("florii_transplant"));
 
     const species = await client.callTool({ name: "florii_list_species", arguments: {} });
     assert.equal(species.isError, undefined);
@@ -30,9 +31,21 @@ test("the built stdio server completes a real MCP handshake and tool call", asyn
     assert.ok(speciesPayload.species.some((item) => item.id === "cloudpoppy"));
     const planted = await client.callTool({ name: "florii_plant", arguments: { species: "cloudpoppy", nickname: "Mori" } });
     assert.equal(planted.isError, undefined);
+    const plantedPayload = planted.structuredContent as { planted: { id: string } };
     const visit = await client.callTool({ name: "florii_visit", arguments: { detail: "full" } });
     assert.equal(visit.isError, undefined);
     assert.match(JSON.stringify(visit.structuredContent), /Mori/);
+    const transplanted = await client.callTool({
+      name: "florii_transplant",
+      arguments: { targetId: plantedPayload.planted.id, note: "A quieter corner." }
+    });
+    assert.equal(transplanted.isError, undefined);
+    const transplantPayload = transplanted.structuredContent as {
+      garden: { plants: unknown[]; herbarium: { archivedCount: number; archivedResidents: Array<{ name: string }> } };
+    };
+    assert.equal(transplantPayload.garden.plants.length, 0);
+    assert.equal(transplantPayload.garden.herbarium.archivedCount, 1);
+    assert.match(transplantPayload.garden.herbarium.archivedResidents[0]?.name ?? "", /Mori/);
   } finally {
     await client.close();
   }

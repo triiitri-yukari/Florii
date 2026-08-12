@@ -192,6 +192,10 @@ function openPlant(plant) {
   addFact(facts, "water need", `${phenotype.waterNeed}%`);
   addFact(facts, "growth pace", `${Math.round(phenotype.growthRate * 100)}%`);
   addFact(facts, "resilience", `${phenotype.resilience}%`);
+  if (plant.archivedAt) {
+    addFact(facts, "status", "transplanted · preserved");
+    addFact(facts, "left garden", `day ${plant.archivedGardenDay}`);
+  }
 
   const traits = $("#dialog-traits");
   traits.replaceChildren();
@@ -200,11 +204,14 @@ function openPlant(plant) {
     chip.textContent = trait;
     traits.append(chip);
   }
-  $("#dialog-family").textContent = plant.generation > 1
+  const family = plant.generation > 1
     ? `A generation ${plant.generation} descendant, carrying a gently changed version of its family's colors and tendencies.`
     : plant.origin === "wind"
       ? "A first-generation seed carried here by the wind."
       : "A first-generation plant, placed here deliberately.";
+  $("#dialog-family").textContent = plant.archivedAt
+    ? `${family} It was transplanted on garden day ${plant.archivedGardenDay}; its portrait and complete record remain here.${plant.note ? ` ${plant.note}` : ""}`
+    : family;
   dialog.showModal();
 }
 
@@ -259,7 +266,7 @@ function renderCollection(plants) {
   container.replaceChildren(...plants.map(makeCollectionCard));
 }
 
-function makeHerbariumCard(species, entry) {
+function makeHerbariumCard(species, entry, archivedResidents = []) {
   const card = document.createElement("article");
   card.className = `herbarium-card${entry ? " discovered" : " locked"}`;
 
@@ -333,6 +340,28 @@ function makeHerbariumCard(species, entry) {
         : `✦ ${entry.notableFinds.length} unusual individual${entry.notableFinds.length === 1 ? "" : "s"}`;
       copy.append(notable);
     }
+
+    if (archivedResidents.length) {
+      const archive = document.createElement("div");
+      archive.className = "herbarium-residents";
+      const label = document.createElement("small");
+      label.textContent = `${archivedResidents.length} transplanted ${archivedResidents.length === 1 ? "resident" : "residents"}`;
+      archive.append(label);
+      for (const resident of archivedResidents) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.addEventListener("click", () => openPlant(resident));
+        const dot = document.createElement("i");
+        dot.style.background = `linear-gradient(135deg, ${resident.phenotype.primaryColor}, ${resident.phenotype.secondaryColor})`;
+        const name = document.createElement("span");
+        name.textContent = resident.name;
+        const day = document.createElement("b");
+        day.textContent = `day ${resident.archivedGardenDay}`;
+        button.append(dot, name, day);
+        archive.append(button);
+      }
+      copy.append(archive);
+    }
   }
 
   card.append(art, copy);
@@ -340,12 +369,19 @@ function makeHerbariumCard(species, entry) {
 }
 
 function renderHerbarium(herbarium, catalog) {
-  const data = herbarium ?? { speciesDiscovered: 0, speciesTotal: catalog.length, variantCount: 0, notableCount: 0, entries: [] };
+  const data = herbarium ?? { speciesDiscovered: 0, speciesTotal: catalog.length, variantCount: 0, notableCount: 0, archivedCount: 0, archivedResidents: [], entries: [] };
   $("#herbarium-species").textContent = `${data.speciesDiscovered ?? 0} / ${data.speciesTotal ?? catalog.length}`;
   $("#herbarium-variants").textContent = String(data.variantCount ?? 0);
   $("#herbarium-notable").textContent = String(data.notableCount ?? 0);
+  $("#herbarium-archived").textContent = String(data.archivedCount ?? 0);
   const entries = new Map((data.entries ?? []).map((entry) => [entry.species, entry]));
-  $("#herbarium-grid").replaceChildren(...catalog.map((species) => makeHerbariumCard(species, entries.get(species.id))));
+  const archivedBySpecies = new Map();
+  for (const resident of data.archivedResidents ?? []) {
+    const residents = archivedBySpecies.get(resident.species) ?? [];
+    residents.push(resident);
+    archivedBySpecies.set(resident.species, residents);
+  }
+  $("#herbarium-grid").replaceChildren(...catalog.map((species) => makeHerbariumCard(species, entries.get(species.id), archivedBySpecies.get(species.id) ?? [])));
 }
 
 function renderSeedLibrary(catalog) {

@@ -335,6 +335,13 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .herbarium-variants b { overflow: hidden; color: var(--ink-soft); font-size: 8px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
 .herbarium-variants small { align-self: center; color: var(--muted); font-size: 8px; }
 .herbarium-notable { margin: 13px 0 0; padding-top: 11px; border-top: 1px solid var(--line); color: #776539; font: italic 9px Georgia, serif; }
+.herbarium-residents { display: grid; gap: 6px; margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--line); }
+.herbarium-residents > small { color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+.herbarium-residents button { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: center; gap: 7px; width: 100%; padding: 7px 8px; color: var(--ink-soft); text-align: left; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.34); cursor: pointer; }
+.herbarium-residents button:hover { border-color: var(--line-strong); background: rgba(255,255,255,.62); }
+.herbarium-residents i { width: 11px; height: 11px; border: 1px solid rgba(255,255,255,.8); border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
+.herbarium-residents span { overflow: hidden; font: 10px Georgia, serif; text-overflow: ellipsis; white-space: nowrap; }
+.herbarium-residents b { color: var(--muted); font-size: 8px; font-weight: 500; }
 .herbarium-card.locked .herbarium-art { display: grid; place-items: center; background: linear-gradient(155deg, #e5e5dc, #d9ddd1); }
 .herbarium-card.locked .herbarium-art::after { opacity: .58; }
 .herbarium-silhouette { position: relative; z-index: 1; display: grid; place-items: center; width: 61px; height: 61px; border: 1px dashed rgba(72,82,68,.25); border-radius: 50%; color: rgba(72,82,68,.34); background: rgba(255,255,255,.2); font: 22px Georgia, serif; }

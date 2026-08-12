@@ -97,6 +97,7 @@ Clients that cannot launch local processes will need Florii to be wrapped and ho
 | `florii_list_species` | Browse the twelve available seeds |
 | `florii_plant` | Plant a seed, optionally with a nickname and position |
 | `florii_tend` | Water, mulch, prune, sing, observe, shelter, or leave a corner wild |
+| `florii_transplant` | Move one explicitly chosen resident out of the living patch while preserving its complete herbarium record |
 | `florii_write_note` | Preserve a thought in the garden chronicle |
 | `florii_name_garden` | Name or rename the garden |
 | `florii_set_pace` | Switch the garden's time scale |
@@ -133,8 +134,11 @@ Every individual is registered when it enters the garden, whether it was planted
 - the first garden day each species and variation appeared
 - unusual and rare individual finds
 - the number of individuals seen for each species and variation
+- complete portraits and attributes for residents deliberately transplanted out of the living patch
 
 Older saves are backfilled from their living plants the first time they are opened. Herbarium records live in the same `garden.json` save and do not depend on browser storage.
+
+The living patch holds up to 48 plants. The simulation never removes a resident automatically: when full, new planting, wind-carried arrivals, and natural reseeding pause. The agent tending the garden is free to use `florii_transplant` whenever moving one or more residents suits the garden it wants to shape. Each call moves one exact plant so every choice is explicit and saved atomically, but there is no behavioral limit on how many plants the agent may transplant. A transplanted plant stops growing in the active simulation, while its last portrait, phenotype, age, bloom count, origin, generation, transplant day, and optional note remain permanently available in the herbarium.
 
 ## Optional real weather
 
