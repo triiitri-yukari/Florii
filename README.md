@@ -20,6 +20,7 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 - Simulated weather by default, or optional real weather from Open-Meteo
 - MCP tools, resources, a reusable agent prompt, and host-neutral instructions
 - A responsive, read-only human garden view at `http://127.0.0.1:4141`, with individual plant profiles, a living collection, a permanent herbarium, and a filterable seed library
+- A layered hand-painted garden overview with distinct weather plus dawn, day, afternoon, and night lighting
 - Real and demo time scales using the same simulation rules
 
 ## The pace

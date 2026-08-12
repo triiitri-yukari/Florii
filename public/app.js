@@ -17,6 +17,12 @@ export const speciesStyle = {
 };
 
 const weatherIcons = { clear: "◉", cloudy: "◌", drizzle: "⌇", rain: "≋", storm: "ϟ", mist: "≈", frost: "✧" };
+export function timeOfDayForHour(hour) {
+  if (hour >= 5 && hour < 9) return "dawn";
+  if (hour >= 9 && hour < 15) return "day";
+  if (hour >= 15 && hour < 19) return "afternoon";
+  return "night";
+}
 export const phrases = {
   seed: "resting beneath the soil",
   sprout: "a new green beginning",
@@ -500,14 +506,17 @@ function render(data) {
   const plants = data.plants ?? [];
   const day = Number(data.gardenDay ?? 0);
   const chapterPercent = Math.min(100, Math.floor((day / 90) * 100));
+  const timeOfDay = timeOfDayForHour(new Date().getHours());
 
   document.title = `${data.name} · Florii`;
   $("#garden-name").textContent = data.name;
   $("#garden-day").textContent = String(day);
   $("#hero-season").textContent = data.season;
   $("#hero-plant-count").textContent = String(plants.length);
-  $("#season-label").textContent = `${data.season} light`;
+  $("#season-label").textContent = `${data.season} · ${timeOfDay} light`;
   $(".garden-card").dataset.season = data.season;
+  $(".garden-card").dataset.weather = weather.condition;
+  $(".garden-card").dataset.time = timeOfDay;
   $("#plant-count").textContent = `${plants.length} ${plants.length === 1 ? "plant" : "plants"}`;
   $("#empty-message").hidden = plants.length > 0;
   $("#chapter-percent").textContent = `${chapterPercent}%`;
