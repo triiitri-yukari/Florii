@@ -99,41 +99,170 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .empty-message { position: absolute; inset: 52% 0 auto; text-align: center; color: rgba(245,240,224,.72); font: italic 14px Georgia, serif; }
 .garden-footer { display: flex; justify-content: space-between; padding: 14px 20px; font-size: 10px; color: var(--muted); background: rgba(249,247,238,.92); }
 
-.plant { --plant-scale: 1; --genetic-scale: 1; --bloom-scale: 1; position: absolute; width: 58px; height: 96px; padding: 0; border: 0; color: inherit; background: transparent; transform: translate(-50%, -100%) scale(var(--plant-scale)) scale(var(--genetic-scale)); transform-origin: 50% 100%; filter: drop-shadow(0 8px 5px rgba(46,45,34,.16)); animation: sway 5s ease-in-out infinite alternate; cursor: pointer; }
+.plant { --plant-scale: 1; --genetic-scale: 1; --bloom-scale: 1; --petal-open: 1; --leaf: #688260; --leaf-dark: #526e4e; position: absolute; width: 68px; height: 108px; padding: 0; border: 0; color: inherit; background: transparent; transform: translate(-50%, -100%) scale(var(--plant-scale)) scale(var(--genetic-scale)); transform-origin: 50% 100%; filter: drop-shadow(0 8px 5px rgba(46,45,34,.16)); animation: sway 5s ease-in-out infinite alternate; cursor: pointer; }
 .plant:nth-child(2n) { animation-delay: -2.2s; animation-duration: 6.3s; }
 .plant:focus-visible { outline: 2px solid rgba(250,248,239,.95); outline-offset: 5px; border-radius: 50%; }
 @keyframes sway { from { rotate: -1.2deg; } to { rotate: 1.6deg; } }
-.stem { position: absolute; width: 3px; height: 58%; left: calc(50% - 1px); bottom: 0; border-radius: 100%; background: #526e4e; }
-.leaf { position: absolute; width: 19px; height: 10px; bottom: 28%; background: #688260; border-radius: 100% 0 100% 0; }
-.leaf.left { left: 17%; rotate: 18deg; }
-.leaf.right { right: 15%; rotate: 162deg; bottom: 39%; }
-.flower { position: absolute; top: 4%; left: 50%; width: 29px; height: 29px; transform: translateX(-50%) scale(var(--bloom-scale)) scale(var(--species-bloom-scale, 1)); }
-.petal { --petal-reach: -8px; position: absolute; inset: 5px; border-radius: 70% 25% 70% 25%; background: var(--flower, #ead0db); transform-origin: 50% 50%; transform: rotate(var(--petal-angle)) translateY(var(--petal-reach)); }
-.plant[data-shape="bell"] .flower { transform: translateX(-50%) translateY(2px) scale(var(--bloom-scale)) scale(var(--species-bloom-scale, 1)); }
-.plant[data-shape="bell"] .petal { inset: 5px 6px 3px; border-radius: 75% 75% 38% 38%; --petal-reach: -7px; }
-.plant[data-shape="star"] .petal { inset: 3px 9px; border-radius: 85% 12% 85% 12%; --petal-reach: -9px; }
-.plant[data-shape="leaf"] .petal { inset: 4px 8px; border-radius: 85% 8% 85% 8%; --petal-reach: -7px; }
-.plant[data-shape="ray"] .petal { inset: 2px 10px; border-radius: 80% 35% 65% 25%; --petal-reach: -10px; }
-.plant[data-shape="frond"] .petal { inset: 3px 10px; border-radius: 100% 5% 100% 5%; --petal-reach: -8px; }
-.plant[data-shape="round"] .petal { inset: 4px; border-radius: 50%; --petal-reach: -7px; }
-.plant[data-shape="lace"] .petal { inset: 4px 10px; border-radius: 90% 30% 90% 30%; --petal-reach: -10px; }
-.plant[data-shape="diamond"] .petal { inset: 5px 7px; border-radius: 60% 8% 60% 8%; --petal-reach: -9px; }
-.plant[data-shape="velvet"] .petal { inset: 3px 6px; border-radius: 75% 42% 70% 40%; --petal-reach: -7px; }
-.plant[data-shape="cup"] .flower { --species-bloom-scale: .76; }
-.plant[data-shape="cup"] .petal { inset: 4px 6px; border-radius: 70% 70% 28% 28%; --petal-reach: -6px; }
-.plant[data-shape="cloud"] .petal { inset: 3px 4px; border-radius: 58% 48% 62% 42%; --petal-reach: -7px; }
+.shoot { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.stem { position: absolute; width: 3px; height: 59%; left: calc(50% - 1px); bottom: 0; border-radius: 100% 100% 40% 40%; background: linear-gradient(90deg, var(--leaf-dark), color-mix(in srgb, var(--leaf-dark) 72%, white)); transform-origin: 50% 100%; }
+.stem::after { display: none; }
+.leaf { position: absolute; z-index: 1; width: 23px; height: 12px; bottom: 28%; background: linear-gradient(150deg, color-mix(in srgb, var(--leaf) 78%, white), var(--leaf)); border: 1px solid color-mix(in srgb, var(--leaf-dark) 28%, transparent); border-radius: 100% 0 100% 0; transform-origin: 100% 50%; }
+.leaf::after { content: ""; position: absolute; left: 4px; right: 3px; top: 50%; height: 1px; opacity: .34; background: var(--leaf-dark); transform: rotate(-8deg); }
+.leaf.left { left: auto; right: calc(50% - 1px); rotate: 18deg; }
+.leaf.right { left: calc(50% - 1px); right: auto; bottom: 41%; rotate: -18deg; transform-origin: 0 50%; }
+.leaf.accent-left { left: auto; right: calc(50% - 1px); bottom: 52%; width: 16px; height: 8px; rotate: 28deg; opacity: .82; }
+.leaf.accent-right { left: calc(50% - 1px); right: auto; bottom: 19%; width: 14px; height: 7px; rotate: -27deg; transform-origin: 0 50%; opacity: .72; }
+.flower { position: absolute; z-index: 2; top: 1%; left: 50%; width: 38px; height: 38px; transform: translateX(-50%) scale(var(--bloom-scale)) scale(var(--species-bloom-scale, 1)); transform-origin: 50% 65%; }
+.petal { --petal-reach: -10px; position: absolute; z-index: 1; inset: 7px; border: 1px solid rgba(72,62,74,.08); border-radius: 72% 22% 72% 22%; background: var(--flower, #ead0db); clip-path: polygon(50% 0, 90% 24%, 76% 67%, 59% 91%, 50% 100%, 41% 91%, 24% 67%, 10% 24%); box-shadow: inset 1px 1px 1px rgba(255,255,255,.26); transform-origin: 50% 50%; transform: rotate(var(--petal-angle)) translateY(var(--petal-reach)) scale(var(--petal-open)); transition: transform .45s ease, opacity .45s ease; }
+.petal-inner { --petal-reach: -5px; z-index: 2; inset: 10px; opacity: .72; filter: brightness(1.035); }
+.flower-center { position: absolute; z-index: 4; width: 9px; height: 9px; border: 1px solid rgba(90,72,42,.1); border-radius: 50%; background: radial-gradient(circle at 36% 33%, color-mix(in srgb, var(--flower-center, #d7b66d) 72%, white) 0 18%, var(--flower-center, #d7b66d) 22% 100%); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--flower-center, #d7b66d) 58%, var(--flower)), 0 1px 2px rgba(60,48,32,.16); left: 50%; top: 50%; transform: translate(-50%,-50%); }
+
+.plant[data-shape="bell"] .flower { top: 4%; rotate: 8deg; --species-bloom-scale: .92; }
+.plant[data-shape="bell"] .petal { inset: 7px 8px 4px; border-radius: 78% 78% 38% 38%; --petal-reach: -8px; }
+.plant[data-shape="bell"] .petal-inner { inset: 11px 12px 7px; --petal-reach: -4px; }
+.plant[data-shape="bell"] .flower-center { top: 64%; width: 7px; height: 7px; }
+.plant[data-shape="star"] .petal { inset: 4px 12px; border-radius: 92% 8% 92% 8%; --petal-reach: -12px; }
+.plant[data-shape="star"] .petal-inner { inset: 10px 14px; --petal-reach: -6px; }
+.plant[data-shape="leaf"] .petal { inset: 6px 10px; border-radius: 92% 7% 92% 7%; --petal-reach: -9px; }
+.plant[data-shape="ray"] .petal { inset: 3px 13px; border-radius: 90% 30% 72% 20%; --petal-reach: -13px; }
+.plant[data-shape="ray"] .petal-inner { inset: 10px 14px; --petal-reach: -7px; }
+.plant[data-shape="frond"] .petal { inset: 5px 13px; border-radius: 100% 4% 100% 4%; --petal-reach: -11px; }
+.plant[data-shape="round"] .petal { inset: 6px; border-radius: 50%; --petal-reach: -9px; }
+.plant[data-shape="lace"] .petal { inset: 4px 14px; border-radius: 92% 22% 92% 22%; --petal-reach: -14px; }
+.plant[data-shape="lace"] .petal-inner { inset: 11px 15px; --petal-reach: -7px; }
+.plant[data-shape="diamond"] .petal { inset: 7px 10px; border-radius: 64% 5% 64% 5%; --petal-reach: -11px; border-color: color-mix(in srgb, var(--flower-2) 35%, transparent); }
+.plant[data-shape="diamond"] .petal-inner { inset: 11px 13px; --petal-reach: -5px; }
+.plant[data-shape="velvet"] .petal { inset: 5px 8px; border-radius: 78% 45% 73% 38%; --petal-reach: -9px; }
+.plant[data-shape="velvet"] .petal-inner { inset: 11px 10px; --petal-reach: -4px; }
+.plant[data-shape="cup"] .flower { top: 9%; --species-bloom-scale: .78; }
+.plant[data-shape="cup"] .petal { inset: 6px 8px 3px; border-radius: 74% 74% 26% 26%; --petal-reach: -7px; }
+.plant[data-shape="cup"] .petal-inner { inset: 11px 11px 5px; --petal-reach: -3px; }
+.plant[data-shape="cloud"] .flower { --species-bloom-scale: 1.08; }
+.plant[data-shape="cloud"] .petal { inset: 5px 6px; border-radius: 62% 47% 65% 44%; --petal-reach: -8px; }
+.plant[data-shape="cloud"] .petal-inner { inset: 12px 10px; --petal-reach: -3px; }
+
+/* Each species keeps a recognisable silhouette even when colors mutate. */
+.plant[data-species="moonbell"] { --leaf: #66806c; --leaf-dark: #46624f; }
+.plant[data-species="moonbell"] .shoot { rotate: -4deg; }
+.plant[data-species="moonbell"] .stem { height: 66%; border-radius: 100% 25% 30% 30%; }
+.plant[data-species="moonbell"] .leaf { width: 20px; height: 11px; border-radius: 95% 0 78% 8%; }
+.plant[data-species="moonbell"] .leaf.accent-left { display: none; }
+.plant[data-species="moonbell"] .flower { left: calc(50% - 4px); width: 34px; height: 38px; }
+.plant[data-species="moonbell"] .petal-outer { inset: auto; top: 8px; left: 11px; width: 12px; height: 24px; border-radius: 72% 72% 45% 45%; clip-path: none; transform-origin: 50% 0; }
+.plant[data-species="moonbell"] .petal-outer:nth-child(1) { transform: translateX(-8px) rotate(17deg) scale(var(--petal-open)); }
+.plant[data-species="moonbell"] .petal-outer:nth-child(2) { transform: translateX(-4px) rotate(8deg) scale(var(--petal-open)); }
+.plant[data-species="moonbell"] .petal-outer:nth-child(3) { transform: scale(var(--petal-open)); }
+.plant[data-species="moonbell"] .petal-outer:nth-child(4) { transform: translateX(4px) rotate(-8deg) scale(var(--petal-open)); }
+.plant[data-species="moonbell"] .petal-outer:nth-child(5) { transform: translateX(8px) rotate(-17deg) scale(var(--petal-open)); }
+.plant[data-species="moonbell"] .petal-inner { display: none; }
+.plant[data-species="moonbell"] .flower-center { top: 80%; width: 6px; height: 7px; }
+.plant[data-species="starpetal"] .leaf { width: 22px; height: 9px; border-radius: 100% 0 88% 0; }
+.plant[data-species="starpetal"] .flower { top: 6%; rotate: -3deg; --species-bloom-scale: .78; }
+.plant[data-species="starpetal"] .petal { z-index: 2; clip-path: polygon(50% 0, 88% 24%, 74% 67%, 58% 91%, 50% 100%, 42% 91%, 26% 67%, 12% 24%); box-shadow: inset 0 1px 0 rgba(255,255,255,.28); }
+.plant[data-species="starpetal"] .flower-center { z-index: 5; width: 11px; height: 11px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--flower-center) 72%, var(--flower)); }
+.satellite-bloom { position: absolute; z-index: 1; top: 18px; width: 14px; height: 14px; background: var(--flower-2); clip-path: polygon(50% 0, 61% 36%, 100% 25%, 70% 50%, 100% 75%, 61% 64%, 50% 100%, 39% 64%, 0 75%, 30% 50%, 0 25%, 39% 36%); filter: drop-shadow(0 2px 1px rgba(48,45,38,.12)); }
+.satellite-bloom::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--flower-center); }
+.satellite-bloom.left { left: -8px; rotate: -14deg; transform: scale(.8); }
+.satellite-bloom.right { right: -10px; top: 11px; rotate: 17deg; transform: scale(.65); }
+.plant[data-species="rainmint"] { --leaf: #6e9b7e; --leaf-dark: #47745b; }
+.plant[data-species="rainmint"] .stem { height: 53%; width: 4px; }
+.plant[data-species="rainmint"] .flower { top: 17%; --species-bloom-scale: 1.05; }
+.plant[data-species="rainmint"] .flower-center { width: 6px; height: 6px; background: var(--leaf-dark); }
+.plant[data-species="rainmint"] .leaf { width: 27px; height: 15px; border-radius: 82% 0 82% 12%; clip-path: polygon(0 52%, 15% 36%, 16% 20%, 34% 21%, 49% 5%, 61% 20%, 82% 17%, 80% 34%, 100% 48%, 81% 61%, 80% 79%, 60% 76%, 47% 94%, 34% 77%, 15% 80%, 17% 63%); }
+.plant[data-species="emberbloom"] { --leaf: #788453; --leaf-dark: #59663d; }
+.plant[data-species="emberbloom"] .stem { height: 64%; }
+.plant[data-species="emberbloom"] .leaf { width: 21px; height: 7px; border-radius: 100% 0 100% 0; }
+.plant[data-species="emberbloom"] .flower { --species-bloom-scale: 1.1; }
+.plant[data-species="emberbloom"] .petal-outer { inset: 2px 14px; border-radius: 95% 28% 62% 18%; clip-path: polygon(50% 0, 88% 30%, 66% 74%, 55% 94%, 50% 100%, 45% 94%, 34% 74%, 12% 30%); }
+.plant[data-species="emberbloom"] .petal-inner { display: none; }
+.plant[data-species="emberbloom"] .flower-center { width: 12px; height: 12px; }
+.plant[data-species="duskfern"] { --leaf: #567e68; --leaf-dark: #365c4b; }
+.fern-crown { position: absolute; inset: 3px 0 0; transform-origin: 50% 100%; }
+.fern-frond { position: absolute; left: 50%; bottom: 0; width: 38px; height: 82px; transform-origin: 50% 100%; transform: translateX(-50%) rotate(var(--frond-angle)) scale(var(--frond-scale)); }
+.fern-frond::before { content: ""; position: absolute; left: 50%; bottom: 0; width: 18px; height: 100%; border-left: 2px solid var(--leaf-dark); border-radius: 55% 0 0 42%; transform: translateX(-1px) skewX(-4deg); }
+.fern-frond::after { content: ""; display: none; position: absolute; left: calc(50% - 3px); top: -1px; width: 7px; height: 7px; border: 2px solid var(--leaf-dark); border-left-color: transparent; border-radius: 50%; rotate: -28deg; }
+.fern-frond[data-frond="3"]::after { display: block; }
+.fern-pinna { position: absolute; z-index: 1; top: var(--pinna-y); width: 19px; height: 8px; background: linear-gradient(150deg, color-mix(in srgb, var(--flower) 56%, #89a88f), var(--leaf)); border: 1px solid color-mix(in srgb, var(--leaf-dark) 35%, transparent); clip-path: polygon(0 50%, 22% 8%, 100% 30%, 82% 72%, 22% 92%); }
+.fern-pinna.left { right: 50%; transform-origin: 100% 50%; transform: rotate(15deg) scale(var(--pinna-scale)); }
+.fern-pinna.right { left: 50%; transform-origin: 0 50%; transform: scaleX(-1) rotate(15deg) scale(var(--pinna-scale)); }
+.plant[data-species="duskfern"][data-stage="seed"] .fern-crown { display: none; }
+.plant[data-species="duskfern"][data-stage="sprout"] .fern-frond,
+.plant[data-species="duskfern"][data-stage="young"] .fern-frond { display: none; }
+.plant[data-species="duskfern"][data-stage="sprout"] .fern-frond[data-frond="3"] { display: block; }
+.plant[data-species="duskfern"][data-stage="young"] .fern-frond[data-frond="2"],
+.plant[data-species="duskfern"][data-stage="young"] .fern-frond[data-frond="3"],
+.plant[data-species="duskfern"][data-stage="young"] .fern-frond[data-frond="4"] { display: block; }
+.plant[data-species="duskfern"][data-stage="resting"] .fern-crown { filter: saturate(.58); transform: scaleX(.72); }
+.plant[data-species="duskfern"][data-display="specimen"] .fern-frond { display: block; }
+.plant[data-species="cloverlight"] { --leaf: #83a35d; --leaf-dark: #617d43; }
+.plant[data-species="cloverlight"] .stem { height: 38%; }
+.plant[data-species="cloverlight"] .flower { top: 32%; --species-bloom-scale: .9; }
+.plant[data-species="cloverlight"] .leaf { width: 18px; height: 17px; border-radius: 68% 68% 48% 68%; clip-path: polygon(50% 100%, 9% 57%, 4% 32%, 16% 9%, 39% 4%, 50% 20%, 61% 4%, 84% 9%, 96% 32%, 91% 57%); }
+.plant[data-species="cloverlight"] .leaf::after { display: none; }
+.plant[data-species="snowlace"] { --leaf: #78929a; --leaf-dark: #566f78; }
+.plant[data-species="snowlace"] .leaf { width: 22px; height: 5px; border-radius: 100% 0 100% 0; }
+.plant[data-species="snowlace"] .flower-center { width: 7px; height: 7px; }
+.plant[data-species="sunsigh"] { --leaf: #758049; --leaf-dark: #59633a; }
+.plant[data-species="sunsigh"] .stem { height: 67%; width: 4px; }
+.plant[data-species="sunsigh"] .leaf { width: 25px; height: 10px; border-radius: 100% 0 80% 0; }
+.plant[data-species="sunsigh"] .flower { --species-bloom-scale: 1.12; }
+.plant[data-species="sunsigh"] .flower-center { width: 14px; height: 14px; box-shadow: inset 0 0 0 2px rgba(95,70,30,.12); }
+.plant[data-species="tideglass"] { --leaf: #6d9e91; --leaf-dark: #48786d; }
+.plant[data-species="tideglass"] .stem { height: 66%; }
+.plant[data-species="tideglass"] .petal { opacity: .83; box-shadow: inset 0 0 3px rgba(255,255,255,.65); }
+.plant[data-species="tideglass"] .leaf { width: 29px; height: 8px; border-radius: 100% 0 92% 0; }
+.plant[data-species="velvethorn"] { --leaf: #647160; --leaf-dark: #3e4e40; }
+.plant[data-species="velvethorn"] .stem { width: 4px; height: 63%; }
+.plant[data-species="velvethorn"] .stem::before { content: ""; position: absolute; left: -5px; top: 43%; width: 7px; height: 5px; background: var(--leaf-dark); clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+.plant[data-species="velvethorn"] .leaf { width: 24px; height: 12px; border-color: rgba(218,224,218,.7); border-radius: 86% 0 86% 6%; clip-path: polygon(0 50%, 16% 30%, 18% 13%, 37% 21%, 51% 3%, 64% 21%, 84% 13%, 82% 32%, 100% 50%, 82% 68%, 84% 87%, 64% 79%, 51% 97%, 37% 79%, 18% 87%, 16% 70%); }
+.plant[data-species="velvethorn"] .flower { rotate: 5deg; --species-bloom-scale: 1.05; }
+.plant[data-species="velvethorn"] .petal-outer { inset: 5px 8px; border-radius: 80% 55% 74% 42%; --petal-reach: -8px; clip-path: polygon(50% 0, 92% 25%, 84% 72%, 60% 94%, 50% 100%, 40% 94%, 16% 72%, 8% 25%); }
+.plant[data-species="velvethorn"] .petal-inner { inset: 10px 9px; --petal-reach: -4px; opacity: .9; filter: brightness(.8); }
+.plant[data-species="velvethorn"] .flower-center { width: 8px; height: 8px; background: var(--flower-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--flower) 78%, black); }
+.plant[data-species="lanternmoss"] { --leaf: #75834f; --leaf-dark: #56633b; }
+.plant[data-species="lanternmoss"] .shoot { rotate: 6deg; }
+.plant[data-species="lanternmoss"] .stem { height: 57%; }
+.plant[data-species="lanternmoss"] .flower { top: 12%; left: calc(50% + 6px); }
+.plant[data-species="lanternmoss"] .leaf.accent-left { display: none; }
+.plant[data-species="lanternmoss"] .flower::before { content: ""; position: absolute; z-index: 1; left: 6px; top: 7px; width: 26px; height: 24px; border-radius: 42% 42% 58% 58%; background: linear-gradient(145deg, var(--flower), var(--flower-2)); clip-path: polygon(8% 0, 92% 0, 75% 100%, 25% 100%); box-shadow: inset 2px 2px 3px rgba(255,255,255,.25); }
+.plant[data-species="lanternmoss"] .petal-outer { z-index: 2; inset: auto; top: 3px; left: 15px; width: 8px; height: 8px; border-radius: 50%; clip-path: none; }
+.plant[data-species="lanternmoss"] .petal-outer:nth-child(1) { transform: translateX(-11px) scale(var(--petal-open)); }
+.plant[data-species="lanternmoss"] .petal-outer:nth-child(2) { transform: translateX(-5px) scale(var(--petal-open)); }
+.plant[data-species="lanternmoss"] .petal-outer:nth-child(3) { transform: scale(var(--petal-open)); }
+.plant[data-species="lanternmoss"] .petal-outer:nth-child(4) { transform: translateX(5px) scale(var(--petal-open)); }
+.plant[data-species="lanternmoss"] .petal-outer:nth-child(5) { transform: translateX(11px) scale(var(--petal-open)); }
+.plant[data-species="lanternmoss"] .petal-inner { display: none; }
+.plant[data-species="lanternmoss"] .flower-center { top: 67%; width: 7px; height: 7px; }
+.plant[data-species="lanternmoss"] .leaf { width: 16px; height: 14px; border-radius: 72% 16% 72% 22%; }
+.plant[data-species="cloudpoppy"] { --leaf: #758a70; --leaf-dark: #526a51; }
+.plant[data-species="cloudpoppy"] .stem { height: 72%; width: 4px; }
+.plant[data-species="cloudpoppy"] .leaf { width: 27px; height: 14px; border-radius: 74% 0 70% 12%; clip-path: polygon(0 50%, 10% 23%, 31% 18%, 46% 3%, 62% 18%, 86% 18%, 100% 50%, 88% 77%, 64% 80%, 49% 97%, 31% 82%, 10% 77%); }
+.plant[data-species="cloudpoppy"] .flower { width: 42px; height: 42px; rotate: 45deg; --species-bloom-scale: 1.16; }
+.plant[data-species="cloudpoppy"] .petal-outer { inset: 4px 5px; border-radius: 85% 48% 82% 46%; --petal-reach: -7px; clip-path: polygon(50% 0, 94% 20%, 90% 68%, 63% 92%, 50% 100%, 37% 92%, 10% 68%, 6% 20%); opacity: .84; }
+.plant[data-species="cloudpoppy"] .flower-center { width: 10px; height: 10px; rotate: -45deg; background: var(--flower-center); box-shadow: 0 0 0 3px color-mix(in srgb, var(--flower-center) 55%, white); }
 .plant[data-pattern="gradient"] .petal { background: linear-gradient(145deg, var(--flower), var(--flower-2)); }
 .plant[data-pattern="bicolor"] .petal:nth-child(even) { background: var(--flower-2); }
 .plant[data-pattern="tipped"] .petal { background: linear-gradient(145deg, var(--flower) 58%, var(--flower-2) 60%); }
 .plant[data-pattern="speckled"] .petal { background-color: var(--flower); background-image: radial-gradient(circle, var(--flower-2) 0 12%, transparent 14%), radial-gradient(circle, var(--flower-2) 0 10%, transparent 12%); background-position: 2px 2px, 7px 7px; background-size: 8px 8px; }
-.flower::after { content: ""; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--flower-center, #d7b66d); left: 50%; top: 50%; transform: translate(-50%,-50%); }
 .plant[data-rarity="rare"] .flower { filter: drop-shadow(0 0 7px color-mix(in srgb, var(--flower) 65%, white)); }
 .plant[data-stage="seed"] .stem, .plant[data-stage="seed"] .leaf, .plant[data-stage="seed"] .flower { display: none; }
-.plant[data-stage="seed"]::after { content: "·"; position: absolute; bottom: -6px; left: 48%; color: rgba(43,39,30,.6); }
+.plant[data-stage="seed"]::after { content: ""; position: absolute; bottom: -2px; left: calc(50% - 4px); width: 8px; height: 5px; border-radius: 75% 35% 75% 35%; rotate: -18deg; background: #695843; box-shadow: inset 1px 1px 1px rgba(255,255,255,.16); }
 .plant[data-stage="sprout"] { --plant-scale: .42; }
+.plant[data-stage="sprout"] .flower { display: none; }
+.plant[data-stage="sprout"] .stem { height: 32%; width: 4px; }
+.plant[data-stage="sprout"] .leaf { bottom: 29%; width: 24px; height: 16px; border-radius: 90% 12% 80% 18%; clip-path: none; }
+.plant[data-stage="sprout"] .leaf.accent-left, .plant[data-stage="sprout"] .leaf.accent-right { display: none; }
 .plant[data-stage="young"] { --plant-scale: .68; }
-.plant[data-stage="budding"] .petal, .plant[data-stage="resting"] .petal { transform: scale(.35); border-radius: 50%; }
+.plant[data-display="garden"][data-stage="young"] .flower { display: none; }
+.plant[data-display="garden"][data-stage="young"] .leaf.accent-left { display: none; }
+.plant[data-display="garden"][data-stage="budding"] { --petal-open: .52; --bloom-scale: .82; }
+.plant[data-display="garden"][data-stage="resting"] { --petal-open: .33; --bloom-scale: .72; filter: saturate(.72) drop-shadow(0 8px 5px rgba(46,45,34,.13)); }
+.plant[data-display="garden"][data-stage="resting"] .flower { rotate: 14deg; }
+.plant[data-display="garden"][data-stage="budding"] .petal, .plant[data-display="garden"][data-stage="resting"] .petal { border-radius: 62% 34% 62% 34%; }
+.plant[data-display="specimen"] { --petal-open: 1; --bloom-scale: 1; }
+.plant[data-display="specimen"] .flower { display: block; }
 .plant[data-stage="mature"] { --plant-scale: .9; }
+.plant[data-stage="blooming"] { --bloom-scale: 1.06; }
 .plant-label { position: absolute; opacity: 0; pointer-events: none; white-space: nowrap; top: -28px; left: 50%; transform: translateX(-50%); padding: 6px 9px; border: 1px solid rgba(255,255,255,.7); border-radius: 9px; color: var(--ink); background: rgba(249,246,235,.94); box-shadow: 0 6px 20px rgba(45,49,40,.12); font-size: 9px; transition: opacity .2s; }
 .plant:hover .plant-label, .plant:focus .plant-label { opacity: 1; }
 
@@ -170,9 +299,9 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .plant-collection { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 12px; padding-top: 20px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: #aeb4a3 transparent; }
 .plant-card { min-width: 0; padding: 0; overflow: hidden; text-align: left; color: var(--ink); border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.35); cursor: pointer; transition: transform .2s, border-color .2s, background .2s; }
 .plant-card:hover { transform: translateY(-2px); border-color: var(--line-strong); background: rgba(255,255,255,.57); }
-.plant-card-art { position: relative; height: 145px; overflow: hidden; border-bottom: 1px solid var(--line); }
+.plant-card-art { position: relative; height: 158px; overflow: hidden; border-bottom: 1px solid var(--line); }
 .specimen-plant { left: 50%; top: 88%; cursor: default; animation-duration: 6.8s; }
-.plant-card-art .specimen-plant { --plant-scale: .9; }
+.plant-card-art .specimen-plant { --plant-scale: 1.02; top: 90%; }
 .rarity { position: absolute; right: 12px; top: 12px; padding: 5px 8px; border-radius: 99px; color: var(--ink-soft); background: rgba(250,248,239,.72); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
 .rarity-rare { color: #725d34; background: rgba(250,237,183,.84); }
 .plant-card-copy { padding: 15px; }
@@ -188,9 +317,11 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .season-filters button { padding: 6px 10px; border: 0; border-radius: 99px; color: var(--muted); background: transparent; font-size: 9px; cursor: pointer; }
 .season-filters button.active { color: #f8f5eb; background: #708069; }
 .seed-library { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; padding-top: 20px; }
-.seed-card { display: grid; grid-template-columns: 76px 1fr; min-height: 155px; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.31); }
-.seed-art { display: grid; place-items: center; color: color-mix(in srgb, var(--seed-color) 70%, #4d5b4c); background: radial-gradient(circle at 50% 43%, var(--seed-color) 0 13%, transparent 14%), linear-gradient(155deg, color-mix(in srgb, var(--seed-color) 36%, white), color-mix(in srgb, var(--seed-color-2) 22%, white)); }
-.seed-art span { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; background: rgba(255,255,255,.24); font-size: 18px; }
+.seed-card { display: grid; grid-template-columns: 92px 1fr; min-height: 162px; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.31); }
+.seed-art { position: relative; overflow: hidden; color: color-mix(in srgb, var(--seed-color) 70%, #4d5b4c); background: radial-gradient(circle at 50% 34%, rgba(255,255,255,.42), transparent 32%), linear-gradient(155deg, color-mix(in srgb, var(--seed-color) 36%, white), color-mix(in srgb, var(--seed-color-2) 22%, white)); }
+.seed-art::after { content: ""; position: absolute; inset: auto 0 0; height: 28%; opacity: .3; background: linear-gradient(175deg, transparent 0 35%, color-mix(in srgb, var(--seed-color) 34%, #768064) 36%); }
+.seed-art .specimen-plant { --plant-scale: .67; top: 91%; left: 50%; z-index: 1; animation: none; filter: drop-shadow(0 5px 4px rgba(46,45,34,.12)); }
+.seed-symbol { position: absolute; z-index: 2; top: 9px; left: 9px; width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.6); border-radius: 50%; background: rgba(255,255,255,.38); font-size: 10px; }
 .seed-card > div:last-child { padding: 16px 15px; }
 .seed-card > div:last-child > div:first-child { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .seed-card h3 { margin: 0; font-size: 17px; }
