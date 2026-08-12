@@ -9,7 +9,7 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 ## What grows here
 
 - Persistent local state with atomic, cross-process-safe writes
-- Slow plant lifecycles, seasonal rest, blooming, and natural reseeding
+- Real-time plant lifecycles, season-shaped growth, blooming, and natural reseeding
 - Rain, dew, soil moisture, biodiversity, and condition-aware encounters with insects, birds, fungi, and other small visitors
 - Absence-friendly rules: plants never die because nobody checked in
 - A chronicle of notable changes instead of noisy daily logs
@@ -30,7 +30,7 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 | `real` | 1 garden day per real day | The actual long-lived garden |
 | `demo` | 1 garden day per 10 minutes | Showing a lifecycle without waiting months |
 
-In real mode, seeds usually sprout in several days, first flowers arrive over a few weeks, and the **First Chapter** milestone unlocks after roughly one season. Yearly and generational milestones continue after that.
+In real mode, seeds usually sprout within a few days. Fast species can flower in about a week, most flower within two or three weeks in good conditions, and the slowest species take around a month. Preferred seasons affect growth speed without completely preventing an out-of-season bloom. The **First Chapter** milestone unlocks after roughly one season. Yearly and generational milestones continue after that.
 
 ## Seed catalogue
 

@@ -446,13 +446,13 @@ function addMilestone(
   return true;
 }
 
-function desiredStage(plant: Plant, season: Season): PlantStage {
+function desiredStage(plant: Plant): PlantStage {
   const species = SPECIES[plant.species];
   if (plant.ageDays < species.daysToSprout || plant.growth < species.daysToSprout * 0.55) return "seed";
   if (plant.ageDays < species.daysToBud * 0.48) return "sprout";
   if (plant.ageDays < species.daysToBud || plant.growth < species.daysToBud * 0.72) return "young";
-  if (plant.ageDays < species.daysToMature || plant.growth < species.daysToMature * 0.78) return "budding";
-  if (!species.preferredSeasons.includes(season)) return "resting";
+  const individualMaturityAge = Math.ceil(species.daysToMature / plant.phenotype.growthRate);
+  if (plant.ageDays < individualMaturityAge || plant.growth < species.daysToMature * 0.5) return "budding";
   return plant.bloomCount === 0 ? "blooming" : "mature";
 }
 
@@ -549,7 +549,7 @@ function advancePlant(
   const species = SPECIES[plant.species];
   ensurePlantPhenotype(state, plant);
   const moistureFit = 1 - Math.min(1, Math.abs(state.soilMoisture - plant.phenotype.waterNeed) / 75);
-  const seasonalFit = species.preferredSeasons.includes(weather.season) ? 1 : 0.48;
+  const seasonalFit = species.preferredSeasons.includes(weather.season) ? 1 : 0.78;
   const healthFit = 0.55 + plant.health / 220;
   const growthGain = (0.35 + moistureFit * 0.45) * seasonalFit * healthFit * plant.phenotype.growthRate;
   plant.ageDays += 1;
@@ -561,7 +561,7 @@ function advancePlant(
   plant.health = clamp(plant.health + recovery - moistureStress - harshness, 35, 100);
 
   const before = plant.stage;
-  const next = desiredStage(plant, weather.season);
+  const next = desiredStage(plant);
   plant.stage = next;
   if (before === "seed" && next === "sprout") {
     const name = displayPlant(plant);
@@ -577,7 +577,7 @@ function advancePlant(
   const bloomReady = next === "blooming" || next === "mature";
   const daysSinceBloom = gardenDay - (plant.lastBloomGardenDay ?? -999);
   const bloomInterval = 24 + Math.floor(randomFor(state.seed, `${plant.id}:interval`) * 24);
-  if (bloomReady && plant.health >= 48 && daysSinceBloom >= bloomInterval) {
+  if (bloomReady && daysSinceBloom >= bloomInterval) {
     plant.stage = "blooming";
     plant.bloomCount += 1;
     plant.lastBloomGardenDay = gardenDay;

@@ -72,6 +72,17 @@ test("weather and growth are deterministic for the same seed", () => {
   assert.equal(left.soilMoisture, right.soilMoisture);
 });
 
+test("a preferred season changes pace without locking an out-of-season bloom", () => {
+  const garden = createGarden(start, { seed: 314, hemisphere: "north" });
+  const plant = plantSeed(garden, "velvethorn", {}, start);
+  assert.equal(garden.lastSeason, "spring");
+
+  advanceGarden(garden, new Date("2026-04-15T00:00:00.000Z"));
+
+  assert.ok(plant.bloomCount >= 1);
+  assert.ok(garden.chronicle.some((entry) => entry.kind === "bloom" && entry.title.startsWith("Velvethorn")));
+});
+
 test("seeds of one species grow into persistent individual variations", () => {
   const garden = createGarden(start, { seed: 808 });
   const plants = Array.from({ length: 16 }, () => plantSeed(garden, "moonbell", {}, start));

@@ -19,6 +19,7 @@ test("the seed catalogue exposes twelve complete and distinct species", () => {
     assert.ok(species.colors.every((color) => /^#[0-9a-f]{6}$/i.test(color)));
     assert.ok(species.daysToSprout < species.daysToBud);
     assert.ok(species.daysToBud < species.daysToMature);
+    assert.ok(species.daysToMature <= 24, `${species.name} should reach its first bloom within the month-long baseline`);
     assert.ok(species.waterPreference >= 20 && species.waterPreference <= 85);
     assert.ok(species.resilience >= 50 && species.resilience <= 100);
   }
