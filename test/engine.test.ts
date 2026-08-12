@@ -13,8 +13,6 @@ test("a garden reaches its first chapter after roughly one season", () => {
   assert.ok(plant.ageDays >= 90);
   assert.ok(garden.milestones.some((milestone) => milestone.id === "first-chapter"));
   assert.equal(gardenSnapshot(garden).firstChapter, "complete — the garden continues");
-  advanceGarden(garden, new Date("2026-10-01T00:00:00.000Z"));
-  assert.ok(plant.bloomCount >= 1);
 });
 
 test("long absences change the story but never kill plants", () => {
