@@ -76,6 +76,42 @@ export interface Plant {
   phenotype: PlantPhenotype;
 }
 
+export interface HerbariumVariant {
+  colorName: string;
+  pattern: PlantPhenotype["pattern"];
+  phenotype: PlantPhenotype;
+  firstDiscoveredAt: string;
+  firstDiscoveredGardenDay: number;
+  examplePlantId: string;
+  individualsSeen: number;
+}
+
+export interface HerbariumFind {
+  plantId: string;
+  name: string;
+  rarity: PlantPhenotype["rarity"];
+  colorName: string;
+  pattern: PlantPhenotype["pattern"];
+  discoveredAt: string;
+  gardenDay: number;
+  origin: Plant["origin"];
+  generation: number;
+}
+
+export interface HerbariumSpecies {
+  species: SpeciesId;
+  firstDiscoveredAt: string;
+  firstDiscoveredGardenDay: number;
+  individualsSeen: number;
+  variants: HerbariumVariant[];
+  notableFinds: HerbariumFind[];
+}
+
+export interface Herbarium {
+  registeredPlantIds: string[];
+  species: HerbariumSpecies[];
+}
+
 export interface WeatherDay {
   date: string;
   season: Season;
@@ -154,6 +190,7 @@ export interface GardenState {
   biodiversity: number;
   tranquility: number;
   plants: Plant[];
+  herbarium: Herbarium;
   weather: WeatherDay[];
   weatherConfig: WeatherConfig;
   events: GardenEvent[];

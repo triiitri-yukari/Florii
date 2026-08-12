@@ -69,7 +69,7 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .hero-status strong { display: block; font: 25px/1 Georgia, serif; font-weight: 400; text-transform: capitalize; }
 
 .garden-layout { display: grid; grid-template-columns: minmax(0, 1fr) 288px; gap: 16px; scroll-margin-top: 24px; }
-.garden-card, .weather-card, .condition-card, .chapter-card, .chronicle-card, .milestone-card, .collection-section, .seed-section {
+.garden-card, .weather-card, .condition-card, .chapter-card, .chronicle-card, .milestone-card, .collection-section, .herbarium-section, .seed-section {
   border: 1px solid var(--line);
   border-radius: 25px;
   background: var(--card);
@@ -104,9 +104,9 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .plant:focus-visible { outline: 2px solid rgba(250,248,239,.95); outline-offset: 5px; border-radius: 50%; }
 @keyframes sway { from { rotate: -1.2deg; } to { rotate: 1.6deg; } }
 .shoot { position: absolute; inset: 0; transform-origin: 50% 100%; }
-.stem { position: absolute; width: 3px; height: 59%; left: calc(50% - 1px); bottom: 0; border-radius: 100% 100% 40% 40%; background: linear-gradient(90deg, var(--leaf-dark), color-mix(in srgb, var(--leaf-dark) 72%, white)); transform-origin: 50% 100%; }
+.stem { position: absolute; width: 3px; height: 59%; left: calc(50% - 1px); bottom: 0; border-radius: 100% 100% 40% 40%; background: linear-gradient(90deg, var(--leaf-dark), var(--leaf)); transform-origin: 50% 100%; }
 .stem::after { display: none; }
-.leaf { position: absolute; z-index: 1; width: 23px; height: 12px; bottom: 28%; background: linear-gradient(150deg, color-mix(in srgb, var(--leaf) 78%, white), var(--leaf)); border: 1px solid color-mix(in srgb, var(--leaf-dark) 28%, transparent); border-radius: 100% 0 100% 0; transform-origin: 100% 50%; }
+.leaf { position: absolute; z-index: 1; width: 23px; height: 12px; bottom: 28%; background: linear-gradient(150deg, var(--leaf), var(--leaf-dark)); border: 1px solid rgba(65, 89, 62, .22); border-radius: 100% 0 100% 0; transform-origin: 100% 50%; }
 .leaf::after { content: ""; position: absolute; left: 4px; right: 3px; top: 50%; height: 1px; opacity: .34; background: var(--leaf-dark); transform: rotate(-8deg); }
 .leaf.left { left: auto; right: calc(50% - 1px); rotate: 18deg; }
 .leaf.right { left: calc(50% - 1px); right: auto; bottom: 41%; rotate: -18deg; transform-origin: 0 50%; }
@@ -115,7 +115,7 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .flower { position: absolute; z-index: 2; top: 1%; left: 50%; width: 38px; height: 38px; transform: translateX(-50%) scale(var(--bloom-scale)) scale(var(--species-bloom-scale, 1)); transform-origin: 50% 65%; }
 .petal { --petal-reach: -10px; position: absolute; z-index: 1; inset: 7px; border: 1px solid rgba(72,62,74,.08); border-radius: 72% 22% 72% 22%; background: var(--flower, #ead0db); clip-path: polygon(50% 0, 90% 24%, 76% 67%, 59% 91%, 50% 100%, 41% 91%, 24% 67%, 10% 24%); box-shadow: inset 1px 1px 1px rgba(255,255,255,.26); transform-origin: 50% 50%; transform: rotate(var(--petal-angle)) translateY(var(--petal-reach)) scale(var(--petal-open)); transition: transform .45s ease, opacity .45s ease; }
 .petal-inner { --petal-reach: -5px; z-index: 2; inset: 10px; opacity: .72; filter: brightness(1.035); }
-.flower-center { position: absolute; z-index: 4; width: 9px; height: 9px; border: 1px solid rgba(90,72,42,.1); border-radius: 50%; background: radial-gradient(circle at 36% 33%, color-mix(in srgb, var(--flower-center, #d7b66d) 72%, white) 0 18%, var(--flower-center, #d7b66d) 22% 100%); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--flower-center, #d7b66d) 58%, var(--flower)), 0 1px 2px rgba(60,48,32,.16); left: 50%; top: 50%; transform: translate(-50%,-50%); }
+.flower-center { position: absolute; z-index: 4; width: 9px; height: 9px; border: 1px solid rgba(90,72,42,.1); border-radius: 50%; background: radial-gradient(circle at 36% 33%, rgba(255,255,255,.48) 0 18%, transparent 21%), var(--flower-center, #d7b66d); box-shadow: 0 0 0 1.5px rgba(120, 96, 53, .16), 0 1px 2px rgba(60,48,32,.16); left: 50%; top: 50%; transform: translate(-50%,-50%); }
 
 .plant[data-shape="bell"] .flower { top: 4%; rotate: 8deg; --species-bloom-scale: .92; }
 .plant[data-shape="bell"] .petal { inset: 7px 8px 4px; border-radius: 78% 78% 38% 38%; --petal-reach: -8px; }
@@ -292,7 +292,7 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .chapter-card > p { margin: 0 0 18px; color: var(--ink-soft); font: italic 12px/1.55 Georgia, serif; }
 .chapter-card > span { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; }
 
-.collection-section, .seed-section { margin-top: 16px; padding: 29px; scroll-margin-top: 24px; }
+.collection-section, .herbarium-section, .seed-section { margin-top: 16px; padding: 29px; scroll-margin-top: 24px; }
 .section-heading { display: flex; justify-content: space-between; align-items: end; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
 .section-heading h2 { margin: 0; font-size: 31px; }
 .section-heading > span, .wide-heading > p { margin: 0; color: var(--muted); font: italic 11px Georgia, serif; }
@@ -312,6 +312,33 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .mini-swatches, .swatches { display: flex; gap: 5px; }
 .mini-swatches i, .swatches span { display: block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.72); border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
 .soft-empty { grid-column: 1 / -1; margin: 0; padding: 42px 20px; text-align: center; color: var(--muted); font: italic 13px Georgia, serif; }
+
+.herbarium-heading { align-items: center; }
+.herbarium-stats { display: flex; align-items: center; gap: 25px; }
+.herbarium-stats span { color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .1em; }
+.herbarium-stats strong { display: block; margin-bottom: 5px; color: var(--ink); font: 20px/1 Georgia, serif; font-weight: 400; letter-spacing: -.02em; text-transform: none; }
+.herbarium-intro { max-width: 640px; margin: 18px 0 0; color: var(--muted); font: italic 11px/1.6 Georgia, serif; }
+.herbarium-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; padding-top: 20px; }
+.herbarium-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.31); }
+.herbarium-art { --herbarium-color: #d9ddcf; --herbarium-color-2: #f0eadc; position: relative; height: 150px; overflow: hidden; border-bottom: 1px solid var(--line); background: radial-gradient(circle at 50% 34%, rgba(255,255,255,.62), transparent 31%), linear-gradient(155deg, var(--herbarium-color), var(--herbarium-color-2)); }
+.herbarium-art::after { content: ""; position: absolute; inset: auto 0 0; z-index: 0; height: 25%; background: #978b73; clip-path: polygon(0 35%, 27% 20%, 54% 35%, 77% 16%, 100% 29%, 100% 100%, 0 100%); }
+.herbarium-art .specimen-plant { --plant-scale: .9; top: 87%; z-index: 1; animation: none; }
+.herbarium-found { position: absolute; z-index: 2; top: 11px; right: 11px; padding: 5px 8px; border: 1px solid rgba(255,255,255,.52); border-radius: 99px; color: var(--ink-soft); background: rgba(249,247,239,.74); font-size: 8px; text-transform: uppercase; letter-spacing: .07em; }
+.herbarium-copy { padding: 16px; }
+.herbarium-copy > div:first-child { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.herbarium-copy h3 { margin: 0; font-size: 19px; }
+.herbarium-copy > div:first-child > span { color: var(--muted); font-size: 8px; text-transform: uppercase; white-space: nowrap; }
+.herbarium-copy > p:not(.herbarium-notable) { min-height: 31px; margin: 7px 0 13px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.herbarium-variants { display: flex; flex-wrap: wrap; gap: 6px; }
+.herbarium-variants span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; padding: 5px 7px; border: 1px solid var(--line); border-radius: 99px; background: rgba(255,255,255,.38); }
+.herbarium-variants i { flex: 0 0 auto; width: 10px; height: 10px; border: 1px solid rgba(255,255,255,.8); border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
+.herbarium-variants b { overflow: hidden; color: var(--ink-soft); font-size: 8px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.herbarium-variants small { align-self: center; color: var(--muted); font-size: 8px; }
+.herbarium-notable { margin: 13px 0 0; padding-top: 11px; border-top: 1px solid var(--line); color: #776539; font: italic 9px Georgia, serif; }
+.herbarium-card.locked .herbarium-art { display: grid; place-items: center; background: linear-gradient(155deg, #e5e5dc, #d9ddd1); }
+.herbarium-card.locked .herbarium-art::after { opacity: .58; }
+.herbarium-silhouette { position: relative; z-index: 1; display: grid; place-items: center; width: 61px; height: 61px; border: 1px dashed rgba(72,82,68,.25); border-radius: 50%; color: rgba(72,82,68,.34); background: rgba(255,255,255,.2); font: 22px Georgia, serif; }
+.herbarium-card.locked .herbarium-copy { opacity: .65; }
 
 .season-filters { display: flex; gap: 5px; padding: 4px; border: 1px solid var(--line); border-radius: 99px; background: rgba(255,255,255,.25); }
 .season-filters button { padding: 6px 10px; border: 0; border-radius: 99px; color: var(--muted); background: transparent; font-size: 9px; cursor: pointer; }
@@ -377,6 +404,7 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
   .hero-status div { min-width: 90px; padding: 0 14px; }
   .garden-layout { grid-template-columns: minmax(0, 1fr) 255px; }
   .seed-library { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .herbarium-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 790px) {
@@ -406,10 +434,14 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
   .garden-field { min-height: 280px; }
   .today-panel { grid-template-columns: 1fr; }
   .chapter-card { grid-column: auto; }
-  .collection-section, .seed-section, .chronicle-card { padding: 22px 18px; }
+  .collection-section, .herbarium-section, .seed-section, .chronicle-card { padding: 22px 18px; }
   .wide-heading { display: block; }
   .wide-heading > p { margin-top: 9px; }
   .season-filters { margin-top: 18px; overflow-x: auto; }
+  .herbarium-heading { display: block; }
+  .herbarium-stats { margin-top: 18px; gap: 18px; }
+  .herbarium-stats strong { font-size: 17px; }
+  .herbarium-grid { grid-template-columns: 1fr; }
   .seed-library { grid-template-columns: 1fr; }
   .seed-card { min-height: 145px; }
   .entry { grid-template-columns: 32px 1fr; }

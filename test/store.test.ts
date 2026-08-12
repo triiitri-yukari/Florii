@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { GardenStore } from "../src/store.js";
 import { createGarden, plantSeed } from "../src/engine.js";
-import type { Plant } from "../src/types.js";
+import type { GardenState, Plant } from "../src/types.js";
 
 test("the store serializes concurrent writes and leaves valid JSON", async () => {
   const directory = await mkdtemp(join(tmpdir(), "florii-store-"));
@@ -41,6 +41,7 @@ test("older saves receive stable phenotypes when loaded", async () => {
   const garden = createGarden(at, { seed: 321 });
   const plant = plantSeed(garden, "rainmint", {}, at);
   delete (plant as Partial<Plant>).phenotype;
+  delete (garden as Partial<GardenState>).herbarium;
   plant.traits = ["old-trait"];
   garden.revision = 5;
   await writeFile(store.path, JSON.stringify(garden), "utf8");
@@ -49,5 +50,8 @@ test("older saves receive stable phenotypes when loaded", async () => {
   assert.ok(migrated.plants[0]?.phenotype.primaryColor.startsWith("#"));
   assert.notDeepEqual(migrated.plants[0]?.traits, ["old-trait"]);
   assert.match(await readFile(store.path, "utf8"), /"phenotype"/);
+  assert.equal(migrated.herbarium.species[0]?.species, "rainmint");
+  assert.equal(migrated.herbarium.species[0]?.individualsSeen, 1);
+  assert.match(await readFile(store.path, "utf8"), /"herbarium"/);
   assert.equal(migrated.revision, 6);
 });

@@ -50,6 +50,7 @@ test("the compiled dashboard serves its public assets and garden API", async () 
     const pageText = await page.text();
     assert.match(pageText, /A garden growing between conversations/);
     assert.match(pageText, /Living collection/);
+    assert.match(pageText, /Herbarium/);
     assert.match(pageText, /Seed library/);
     const css = await fetch(`http://127.0.0.1:${port}/styles.css`);
     assert.equal(css.status, 200);
@@ -68,10 +69,11 @@ test("the compiled dashboard serves its public assets and garden API", async () 
     assert.match(scriptText, /style\.innerPetals/);
     assert.match(scriptText, /seed-symbol/);
     const api = await fetch(`http://127.0.0.1:${port}/api/garden`);
-    const payload = (await api.json()) as { name: string; plants: unknown[]; catalog: unknown[]; state: { schemaVersion: number } };
+    const payload = (await api.json()) as { name: string; plants: unknown[]; catalog: unknown[]; herbarium: { speciesTotal: number }; state: { schemaVersion: number } };
     assert.equal(payload.name, "A Quiet Patch");
     assert.equal(payload.state.schemaVersion, 1);
     assert.equal(payload.catalog.length, 12);
+    assert.equal(payload.herbarium.speciesTotal, 12);
   } finally {
     child.kill("SIGTERM");
     await new Promise<void>((resolveExit) => child.once("exit", () => resolveExit()));

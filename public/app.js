@@ -259,6 +259,95 @@ function renderCollection(plants) {
   container.replaceChildren(...plants.map(makeCollectionCard));
 }
 
+function makeHerbariumCard(species, entry) {
+  const card = document.createElement("article");
+  card.className = `herbarium-card${entry ? " discovered" : " locked"}`;
+
+  const art = document.createElement("div");
+  art.className = "herbarium-art";
+  const style = speciesStyle[species.id] ?? speciesStyle.starpetal;
+  if (entry?.variants?.length) {
+    const variant = entry.variants[0];
+    const phenotype = variant.phenotype;
+    art.style.setProperty("--herbarium-color", phenotype.primaryColor);
+    art.style.setProperty("--herbarium-color-2", phenotype.secondaryColor);
+    art.append(makePlantFigure({
+      species: species.id,
+      name: species.name,
+      stage: "blooming",
+      generation: 1,
+      traits: [],
+      phenotype
+    }, false));
+    const found = document.createElement("span");
+    found.className = "herbarium-found";
+    found.textContent = `found day ${entry.firstDiscoveredGardenDay}`;
+    art.append(found);
+  } else {
+    const symbol = document.createElement("span");
+    symbol.className = "herbarium-silhouette";
+    symbol.textContent = style.symbol;
+    art.append(symbol);
+  }
+
+  const copy = document.createElement("div");
+  copy.className = "herbarium-copy";
+  const heading = document.createElement("div");
+  const name = document.createElement("h3");
+  name.textContent = entry ? species.name : "Undiscovered";
+  const count = document.createElement("span");
+  count.textContent = entry ? `${entry.individualsSeen} seen` : species.preferredSeasons.join(" · ");
+  heading.append(name, count);
+
+  const note = document.createElement("p");
+  note.textContent = entry
+    ? `${entry.variants.length} ${entry.variants.length === 1 ? "variation" : "variations"} remembered for this species.`
+    : "A blank page waiting for the garden to introduce itself.";
+  copy.append(heading, note);
+
+  if (entry) {
+    const variants = document.createElement("div");
+    variants.className = "herbarium-variants";
+    for (const variant of entry.variants.slice(0, 3)) {
+      const chip = document.createElement("span");
+      const color = document.createElement("i");
+      color.style.background = `linear-gradient(135deg, ${variant.phenotype.primaryColor}, ${variant.phenotype.secondaryColor})`;
+      const label = document.createElement("b");
+      label.textContent = `${variant.colorName} · ${variant.pattern}`;
+      chip.append(color, label);
+      variants.append(chip);
+    }
+    if (entry.variants.length > 3) {
+      const more = document.createElement("small");
+      more.textContent = `+${entry.variants.length - 3} more`;
+      variants.append(more);
+    }
+    copy.append(variants);
+
+    if (entry.notableFinds?.length) {
+      const notable = document.createElement("p");
+      notable.className = "herbarium-notable";
+      const rare = entry.notableFinds.filter((find) => find.rarity === "rare").length;
+      notable.textContent = rare
+        ? `✦ ${rare} rare and ${entry.notableFinds.length - rare} unusual individual${entry.notableFinds.length === 1 ? "" : "s"}`
+        : `✦ ${entry.notableFinds.length} unusual individual${entry.notableFinds.length === 1 ? "" : "s"}`;
+      copy.append(notable);
+    }
+  }
+
+  card.append(art, copy);
+  return card;
+}
+
+function renderHerbarium(herbarium, catalog) {
+  const data = herbarium ?? { speciesDiscovered: 0, speciesTotal: catalog.length, variantCount: 0, notableCount: 0, entries: [] };
+  $("#herbarium-species").textContent = `${data.speciesDiscovered ?? 0} / ${data.speciesTotal ?? catalog.length}`;
+  $("#herbarium-variants").textContent = String(data.variantCount ?? 0);
+  $("#herbarium-notable").textContent = String(data.notableCount ?? 0);
+  const entries = new Map((data.entries ?? []).map((entry) => [entry.species, entry]));
+  $("#herbarium-grid").replaceChildren(...catalog.map((species) => makeHerbariumCard(species, entries.get(species.id))));
+}
+
 function renderSeedLibrary(catalog) {
   const filtered = activeSeason === "all" ? catalog : catalog.filter((species) => species.preferredSeasons.includes(activeSeason));
   const container = $("#seed-library");
@@ -409,7 +498,9 @@ function render(data) {
 
   $("#plants-stage").replaceChildren(...plants.map((plant) => makePlantFigure(plant, true)));
   renderCollection(plants);
-  renderSeedLibrary(data.catalog ?? []);
+  const catalog = data.catalog ?? [];
+  renderHerbarium(data.herbarium, catalog);
+  renderSeedLibrary(catalog);
   renderChronicle(data.recentChronicle ?? [], state.chronicle.length);
   renderMilestones(data.milestones ?? []);
   $("#updated-at").textContent = `Garden state checked ${new Date(state.updatedAt).toLocaleString()}`;

@@ -96,4 +96,30 @@ test("self-seeded plants inherit their parent's phenotype with small variation",
   assert.ok(Math.abs(child.phenotype.growthRate - parent.phenotype.growthRate) <= 0.12);
   assert.ok(Math.abs(child.phenotype.waterNeed - parent.phenotype.waterNeed) <= 9);
   assert.ok(Math.abs(child.phenotype.height - parent.phenotype.height) <= 0.16);
+  assert.ok(garden.herbarium.registeredPlantIds.includes(child.id));
+  assert.equal(garden.herbarium.species.find((entry) => entry.species === "starpetal")?.individualsSeen, 2);
+});
+
+test("the herbarium permanently records species, variations, and notable finds", () => {
+  const garden = createGarden(start, { seed: 808 });
+  const plants = Array.from({ length: 12 }, () => plantSeed(garden, "moonbell", {}, start));
+  const record = garden.herbarium.species.find((entry) => entry.species === "moonbell");
+
+  assert.ok(record);
+  assert.equal(record.individualsSeen, plants.length);
+  assert.equal(garden.herbarium.registeredPlantIds.length, plants.length);
+  assert.ok(record.variants.length >= 3);
+  assert.equal(record.firstDiscoveredGardenDay, 0);
+  assert.equal(record.notableFinds.length, plants.filter((plant) => plant.phenotype.rarity !== "common").length);
+
+  const herbarium = gardenSnapshot(garden).herbarium as {
+    speciesDiscovered: number;
+    speciesTotal: number;
+    variantCount: number;
+    entries: unknown[];
+  };
+  assert.equal(herbarium.speciesDiscovered, 1);
+  assert.equal(herbarium.speciesTotal, 12);
+  assert.equal(herbarium.variantCount, record.variants.length);
+  assert.equal(herbarium.entries.length, 1);
 });

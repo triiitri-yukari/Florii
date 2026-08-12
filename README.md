@@ -15,10 +15,11 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 - A chronicle of notable changes instead of noisy daily logs
 - Twelve fictional species with different seasonal, water, resilience, and growth preferences
 - Persistent individual variation: flower colors, patterns, size, pace, water needs, resilience, and fragrance
+- A permanent herbarium that remembers discovered species, color-pattern variations, and notable individuals
 - Second-generation plants inherit their parent's appearance and attributes with gentle mutation
 - Simulated weather by default, or optional real weather from Open-Meteo
 - MCP tools, resources, a reusable agent prompt, and host-neutral instructions
-- A responsive, read-only human garden view at `http://127.0.0.1:4141`, with individual plant profiles, a living collection, and a filterable seed library
+- A responsive, read-only human garden view at `http://127.0.0.1:4141`, with individual plant profiles, a living collection, a permanent herbarium, and a filterable seed library
 - Real and demo time scales using the same simulation rules
 
 ## The pace
@@ -122,6 +123,18 @@ Species defines the broad lifecycle, but it does not fully determine a plant. Ev
 These values are saved with the plant and shown in `florii_visit` results and the local garden view. They are not cosmetic labels: growth rate changes daily growth, water need changes moisture fit and stress, and resilience changes recovery.
 
 When a mature plant self-seeds, its child normally inherits its colors, pattern, fragrance, stature, and growing tendencies, with a small mutation toward the species' natural range. This allows a garden to develop its own little family lines over the years without turning heredity into a breeding spreadsheet.
+
+## Herbarium
+
+Every individual is registered when it enters the garden, whether it was planted deliberately, carried by the wind, or born through natural reseeding. The herbarium permanently keeps:
+
+- species discovery progress
+- named color and petal-pattern variations
+- the first garden day each species and variation appeared
+- unusual and rare individual finds
+- the number of individuals seen for each species and variation
+
+Older saves are backfilled from their living plants the first time they are opened. Herbarium records live in the same `garden.json` save and do not depend on browser storage.
 
 ## Optional real weather
 

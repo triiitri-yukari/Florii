@@ -1,7 +1,7 @@
 import { mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { createGarden, ensurePlantPhenotype } from "./engine.js";
+import { createGarden, ensureHerbarium, ensurePlantPhenotype } from "./engine.js";
 import type { GardenState } from "./types.js";
 
 const LOCK_WAIT_MS = 40;
@@ -91,6 +91,7 @@ export class GardenStore {
       if (!plant.phenotype) changed = true;
       ensurePlantPhenotype(state, plant);
     }
+    if (ensureHerbarium(state)) changed = true;
     return changed;
   }
 

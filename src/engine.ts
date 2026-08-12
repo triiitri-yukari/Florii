@@ -190,6 +190,7 @@ export function createGarden(
     biodiversity: 15,
     tranquility: 70,
     plants: [],
+    herbarium: { registeredPlantIds: [], species: [] },
     weather: [],
     weatherConfig: {
       source: "simulated",
@@ -294,6 +295,80 @@ function desiredStage(plant: Plant, season: Season): PlantStage {
 
 function displayPlant(plant: Plant): string {
   return plant.nickname ? `${plant.nickname} the ${SPECIES[plant.species].name}` : SPECIES[plant.species].name;
+}
+
+function ensureHerbariumShape(state: GardenState): boolean {
+  const legacyState = state as GardenState & { herbarium?: GardenState["herbarium"] };
+  if (!legacyState.herbarium || !Array.isArray(legacyState.herbarium.species)) {
+    state.herbarium = { registeredPlantIds: [], species: [] };
+    return true;
+  }
+  if (!Array.isArray(state.herbarium.registeredPlantIds)) {
+    state.herbarium.registeredPlantIds = [];
+    return true;
+  }
+  return false;
+}
+
+function recordHerbariumDiscovery(state: GardenState, plant: Plant, gardenDay: number): boolean {
+  let changed = ensureHerbariumShape(state);
+  if (state.herbarium.registeredPlantIds.includes(plant.id)) return changed;
+
+  let speciesRecord = state.herbarium.species.find((entry) => entry.species === plant.species);
+  if (!speciesRecord) {
+    speciesRecord = {
+      species: plant.species,
+      firstDiscoveredAt: plant.plantedAt,
+      firstDiscoveredGardenDay: gardenDay,
+      individualsSeen: 0,
+      variants: [],
+      notableFinds: []
+    };
+    state.herbarium.species.push(speciesRecord);
+  }
+
+  speciesRecord.individualsSeen += 1;
+  const variant = speciesRecord.variants.find(
+    (entry) => entry.colorName === plant.phenotype.colorName && entry.pattern === plant.phenotype.pattern
+  );
+  if (variant) variant.individualsSeen += 1;
+  else {
+    speciesRecord.variants.push({
+      colorName: plant.phenotype.colorName,
+      pattern: plant.phenotype.pattern,
+      phenotype: structuredClone(plant.phenotype),
+      firstDiscoveredAt: plant.plantedAt,
+      firstDiscoveredGardenDay: gardenDay,
+      examplePlantId: plant.id,
+      individualsSeen: 1
+    });
+  }
+
+  if (plant.phenotype.rarity !== "common") {
+    speciesRecord.notableFinds.push({
+      plantId: plant.id,
+      name: displayPlant(plant),
+      rarity: plant.phenotype.rarity,
+      colorName: plant.phenotype.colorName,
+      pattern: plant.phenotype.pattern,
+      discoveredAt: plant.plantedAt,
+      gardenDay,
+      origin: plant.origin,
+      generation: plant.generation
+    });
+  }
+  state.herbarium.registeredPlantIds.push(plant.id);
+  return true;
+}
+
+export function ensureHerbarium(state: GardenState): boolean {
+  let changed = ensureHerbariumShape(state);
+  for (const plant of state.plants) {
+    ensurePlantPhenotype(state, plant);
+    const gardenDay = Math.max(0, Math.round((Date.parse(plant.plantedAt) - Date.parse(state.createdAt)) / DAY_MS));
+    if (recordHerbariumDiscovery(state, plant, gardenDay)) changed = true;
+  }
+  return changed;
 }
 
 function advancePlant(
@@ -552,6 +627,7 @@ function makePlant(
     phenotype
   };
   plant.traits = phenotypeTraits(phenotype, species);
+  recordHerbariumDiscovery(state, plant, gardenDay);
   return plant;
 }
 
@@ -712,7 +788,13 @@ export function visitGarden(state: GardenState, now = new Date()): VisitReport {
 
 export function gardenSnapshot(state: GardenState): Record<string, unknown> {
   state.plants.forEach((plant) => ensurePlantPhenotype(state, plant));
+  ensureHerbarium(state);
   const latestWeather = state.weather.at(-1) ?? weatherFor(state, Math.max(0, Math.floor(state.simulatedDays)));
+  const herbariumEntries = state.herbarium.species.map((entry) => ({
+    ...entry,
+    variants: entry.variants.map((variant) => ({ ...variant, phenotype: structuredClone(variant.phenotype) })),
+    notableFinds: entry.notableFinds.map((find) => ({ ...find }))
+  }));
   return {
     name: state.name,
     gardenDay: Math.floor(state.simulatedDays),
@@ -748,6 +830,13 @@ export function gardenSnapshot(state: GardenState): Record<string, unknown> {
       traits: plant.traits,
       phenotype: plant.phenotype
     })),
+    herbarium: {
+      speciesDiscovered: herbariumEntries.length,
+      speciesTotal: SPECIES_LIST.length,
+      variantCount: herbariumEntries.reduce((total, entry) => total + entry.variants.length, 0),
+      notableCount: herbariumEntries.reduce((total, entry) => total + entry.notableFinds.length, 0),
+      entries: herbariumEntries
+    },
     milestones: state.milestones,
     recentChronicle: state.chronicle.slice(-8),
     firstChapter: state.milestones.some((milestone) => milestone.id === "first-chapter")
