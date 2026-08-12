@@ -167,7 +167,23 @@ export interface ChronicleEntry {
 
 export interface GardenEvent {
   id: string;
-  type: "gift_seed" | "mushrooms" | "fireflies" | "moth" | "bird" | "soft_rain";
+  type:
+    | "gift_seed"
+    | "mushrooms"
+    | "fireflies"
+    | "moth"
+    | "bird"
+    | "soft_rain"
+    | "ladybird"
+    | "bumblebee"
+    | "spiderweb"
+    | "snail"
+    | "dragonfly"
+    | "frog"
+    | "fallen_feather"
+    | "rain_puddle"
+    | "seed_husks"
+    | "butterfly";
   appearedAt: string;
   expiresAtGardenDay: number;
   title: string;

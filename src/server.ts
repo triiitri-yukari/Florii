@@ -2,7 +2,6 @@ import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import {
   advanceGarden,
-  configureGarden,
   gardenSnapshot,
   plantSeed,
   renameGarden,
@@ -33,7 +32,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     { name: "florii", version: "1.0.0" },
     {
       instructions:
-        "Florii is a persistent, low-maintenance garden. Begin with florii_visit and respond to what is actually there. Visit from curiosity, not obligation. A week or two away is not failure: plants never die from absence, and events resolve safely. The garden belongs to the agent tending it: planting, care, open space, and transplantation are creative choices rather than obligations or user-gated actions. Transplanted residents keep their complete records in the herbarium. The first chapter takes about 90 garden days; there is no final ending."
+        "Florii is a persistent garden shaped through real time. Begin with florii_visit and respond to what is actually there. The agent tending the garden may freely choose planting, care, open space, and transplantation. Transplanted residents keep their complete records in the herbarium."
     }
   );
 
@@ -42,7 +41,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     {
       title: "Visit Florii",
       description:
-        "Visit the persistent garden and let elapsed real time resolve. Use this for an occasional glance, especially after time away. The garden is low-maintenance: nothing dies because you forgot to visit, and no urgent action is required.",
+        "Visit the persistent garden, resolve elapsed real time, and see its current conditions, residents, and recent changes.",
       inputSchema: z.object({
         detail: z.enum(["glance", "full"]).default("glance").describe("glance returns a compact visit; full includes the complete current snapshot")
       }),
@@ -86,7 +85,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     {
       title: "Plant a seed",
       description:
-        "Plant one seed in Florii. Every seed becomes an individual with persistent colors, pattern, size, growth, water, resilience, and fragrance attributes. Growth is intentionally slow in real mode and continues between conversations.",
+        "Plant one seed in Florii. Every seed becomes an individual with persistent colors, pattern, size, growth, water, resilience, and fragrance attributes. Growth is intentionally real-time based and continues between conversations.",
       inputSchema: z.object({
         species: z.enum(SPECIES_IDS),
         nickname: z.string().trim().min(1).max(40).optional(),
@@ -117,7 +116,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     {
       title: "Tend the garden",
       description:
-        "Offer one gentle kind of care. This is optional and expressive, not a daily chore. Use observe when the garden does not need changing.",
+        "Apply one care or observation action to the garden. The agent may call this tool as often as it chooses.",
       inputSchema: z.object({
         action: z.enum(["water", "mulch", "prune", "sing", "observe", "leave_wild", "shelter"]),
         targetId: z.string().uuid().optional().describe("Required only for prune; optional for shelter"),
@@ -217,33 +216,6 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
   );
 
   server.registerTool(
-    "florii_set_pace",
-    {
-      title: "Set Florii's pace",
-      description:
-        "Choose real for the intended long-lived garden, demo for one garden day per ten real minutes, or test for one garden day per five seconds. Changing pace does not erase progress.",
-      inputSchema: z.object({
-        mode: z.enum(["real", "demo", "test"]),
-        hemisphere: z.enum(["north", "south"]).optional()
-      }),
-      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false }
-    },
-    async ({ mode, hemisphere }) => {
-      try {
-        const changes: Parameters<typeof configureGarden>[1] = { mode };
-        if (hemisphere !== undefined) changes.hemisphere = hemisphere;
-        const { state } = await store.transaction(async (garden) => {
-          configureGarden(garden, changes);
-          await syncExternalWeather(garden, true);
-        });
-        return jsonResult({ mode: state.mode, hemisphere: state.hemisphere }, `Florii now grows in ${state.mode} mode.`);
-      } catch (error) {
-        return errorResult(error);
-      }
-    }
-  );
-
-  server.registerTool(
     "florii_weather",
     {
       title: "Choose Florii's weather",
@@ -304,6 +276,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     async (uri) => {
       const state = await store.read();
       const text = state.chronicle
+        .filter((entry) => entry.title !== "The first chapter")
         .map((entry) => `### ${entry.icon} ${entry.title}\n\n*Garden day ${entry.gardenDay}* — ${entry.text}`)
         .join("\n\n");
       return { contents: [{ uri: uri.href, mimeType: "text/markdown", text: `# ${state.name}\n\n${text}` }] };
@@ -322,13 +295,11 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
           text: [
             "# Florii",
             "",
-            "Florii is a long-lived, low-maintenance garden. Visit because you are curious, not because a timer demands it.",
+            "Florii is a persistent garden shaped through real time.",
             "",
             "- Begin with `florii_visit`, then respond to what you actually find.",
-            "- Plant sparingly. Empty space and wild growth are part of the garden.",
-            "- A week or two away is not failure. Rain, dew, resilience, and time keep the garden alive.",
+            "- Planting, care, open space, and transplantation are all available creative choices.",
             "- Care changes its character and story more than it changes a score.",
-            "- The first chapter arrives after about 90 garden days; there is no final ending.",
             "- Leave notes only when there is something worth remembering."
           ].join("\n")
         }
@@ -340,7 +311,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     "spend-a-moment-in-florii",
     {
       title: "Spend a moment in Florii",
-      description: "A quiet prompt for an agent to visit without turning the garden into a checklist.",
+      description: "A reusable prompt for an agent to visit Florii and respond to its current state.",
       argsSchema: z.object({ intention: z.string().trim().max(120).optional() })
     },
     ({ intention }) => ({
@@ -349,7 +320,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
           role: "user" as const,
           content: {
             type: "text" as const,
-            text: `Visit Florii and notice what changed. ${intention ? `You are arriving with this small intention: ${intention}. ` : ""}Do at most one act of care, and only if the garden seems to invite it. End by telling me what you noticed, not by listing game statistics.`
+            text: `Visit Florii and notice what changed. ${intention ? `You are arriving with this small intention: ${intention}. ` : ""}Choose the actions that suit the garden you want to shape, then tell me what you noticed.`
           }
         }
       ]
@@ -361,7 +332,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
 
 export function summarizeForDashboard(state: GardenState): Record<string, unknown> {
   return {
-    ...gardenSnapshot(state),
+    ...gardenSnapshot(state, { includeInternalMilestones: true }),
     catalog: SPECIES_LIST,
     meta: {
       updatedAt: state.updatedAt,

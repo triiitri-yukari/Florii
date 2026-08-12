@@ -1,8 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, transplantPlant, visitGarden } from "../src/engine.js";
+import { EVENT_CATALOG, advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, transplantPlant, visitGarden } from "../src/engine.js";
 
 const start = new Date("2026-03-01T00:00:00.000Z");
+
+test("the garden offers a varied condition-aware encounter catalogue", () => {
+  assert.equal(EVENT_CATALOG.length, 16);
+  assert.equal(new Set(EVENT_CATALOG.map((event) => event.type)).size, EVENT_CATALOG.length);
+  assert.ok(EVENT_CATALOG.every((event) => event.title.length > 5 && event.description.length > 20));
+
+  const dryEmpty = createGarden(start, { seed: 1 });
+  dryEmpty.soilMoisture = 20;
+  const clearSummer = { date: "2026-07-01", season: "summer", condition: "clear", temperatureC: 28, rainMm: 0, source: "simulated" } as const;
+  assert.equal(EVENT_CATALOG.find((event) => event.type === "snail")?.eligible(dryEmpty, clearSummer), false);
+  assert.equal(EVENT_CATALOG.find((event) => event.type === "rain_puddle")?.eligible(dryEmpty, clearSummer), false);
+
+  plantSeed(dryEmpty, "starpetal", {}, start).stage = "blooming";
+  assert.equal(EVENT_CATALOG.find((event) => event.type === "bumblebee")?.eligible(dryEmpty, clearSummer), true);
+  assert.equal(EVENT_CATALOG.find((event) => event.type === "butterfly")?.eligible(dryEmpty, clearSummer), true);
+});
 
 test("a garden reaches its first chapter after roughly one season", () => {
   const garden = createGarden(start, { seed: 42, hemisphere: "north" });
@@ -12,7 +28,7 @@ test("a garden reaches its first chapter after roughly one season", () => {
   assert.equal(summary.gardenDaysPassed, 92);
   assert.ok(plant.ageDays >= 90);
   assert.ok(garden.milestones.some((milestone) => milestone.id === "first-chapter"));
-  assert.equal(gardenSnapshot(garden).firstChapter, "complete — the garden continues");
+  assert.equal(gardenSnapshot(garden).firstChapter, undefined);
 });
 
 test("long absences change the story but never kill plants", () => {
@@ -21,7 +37,8 @@ test("long absences change the story but never kill plants", () => {
   plantSeed(garden, "emberbloom", {}, start);
   const report = visitGarden(garden, new Date("2028-03-01T00:00:00.000Z"));
 
-  assert.match(report.narrative, /garden continued without complaint/i);
+  assert.match(report.narrative, /real days have passed since the last visit/i);
+  assert.doesNotMatch(report.narrative, /nothing|without complaint|not impatient|immediate response/i);
   assert.ok(garden.plants.length >= 2);
   assert.ok(garden.plants.every((plant) => plant.health >= 35));
   assert.ok(garden.milestones.some((milestone) => milestone.id === "garden-year"));
@@ -139,7 +156,7 @@ test("the herbarium permanently records species, variations, and notable finds",
 test("transplanting frees a space while preserving the complete resident record", () => {
   const garden = createGarden(start, { seed: 212 });
   const residents = Array.from({ length: 48 }, (_, index) => plantSeed(garden, "moonbell", { nickname: `Moon ${index + 1}` }, start));
-  assert.throws(() => plantSeed(garden, "starpetal", {}, start), /full enough/i);
+  assert.throws(() => plantSeed(garden, "starpetal", {}, start), /48-plant capacity/i);
 
   const chosen = residents[12];
   assert.ok(chosen);

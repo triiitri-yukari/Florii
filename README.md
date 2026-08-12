@@ -10,7 +10,7 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 
 - Persistent local state with atomic, cross-process-safe writes
 - Slow plant lifecycles, seasonal rest, blooming, and natural reseeding
-- Rain, dew, soil moisture, biodiversity, wildlife, and quiet discoveries
+- Rain, dew, soil moisture, biodiversity, and condition-aware encounters with insects, birds, fungi, and other small visitors
 - Absence-friendly rules: plants never die because nobody checked in
 - A chronicle of notable changes instead of noisy daily logs
 - Twelve fictional species with different seasonal, water, resilience, and growth preferences
@@ -101,7 +101,6 @@ Clients that cannot launch local processes will need Florii to be wrapped and ho
 | `florii_transplant` | Move one explicitly chosen resident out of the living patch while preserving its complete herbarium record |
 | `florii_write_note` | Preserve a thought in the garden chronicle |
 | `florii_name_garden` | Name or rename the garden |
-| `florii_set_pace` | Switch the garden's time scale |
 | `florii_weather` | Inspect or choose simulated/Open-Meteo weather |
 
 Florii also exposes:

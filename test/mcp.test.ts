@@ -23,6 +23,18 @@ test("the built stdio server completes a real MCP handshake and tool call", asyn
     assert.ok(names.includes("florii_weather"));
     assert.ok(names.includes("florii_plant"));
     assert.ok(names.includes("florii_transplant"));
+    assert.ok(!names.includes("florii_set_pace"));
+
+    const plantTool = listing.tools.find((tool) => tool.name === "florii_plant");
+    assert.match(plantTool?.description ?? "", /intentionally real-time based/);
+
+    const prompt = await client.getPrompt({ name: "spend-a-moment-in-florii", arguments: {} });
+    const promptText = JSON.stringify(prompt.messages);
+    assert.match(promptText, /Choose the actions/);
+    assert.doesNotMatch(promptText, /at most one/i);
+
+    const guide = await client.readResource({ uri: "florii://guide" });
+    assert.doesNotMatch(JSON.stringify(guide.contents), /first chapter|90 garden days|final ending/i);
 
     const species = await client.callTool({ name: "florii_list_species", arguments: {} });
     assert.equal(species.isError, undefined);
@@ -35,6 +47,7 @@ test("the built stdio server completes a real MCP handshake and tool call", asyn
     const visit = await client.callTool({ name: "florii_visit", arguments: { detail: "full" } });
     assert.equal(visit.isError, undefined);
     assert.match(JSON.stringify(visit.structuredContent), /Mori/);
+    assert.doesNotMatch(JSON.stringify(visit.structuredContent), /firstChapter|The first chapter/);
     const transplanted = await client.callTool({
       name: "florii_transplant",
       arguments: { targetId: plantedPayload.planted.id, note: "A quieter corner." }

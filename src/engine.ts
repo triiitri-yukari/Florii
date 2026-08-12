@@ -41,6 +41,138 @@ const FRAGRANCES: PlantPhenotype["fragrance"][] = ["none", "green", "honey", "ra
 const PATTERNS: PlantPhenotype["pattern"][] = ["solid", "gradient", "tipped", "speckled", "bicolor"];
 const AUTO_POSITION_CANDIDATES = 256;
 
+interface EventCandidate {
+  type: GardenEvent["type"];
+  title: string;
+  description: string;
+  eligible: (state: GardenState, weather: WeatherDay) => boolean;
+  biodiversity?: number;
+  richness?: number;
+  tranquility?: number;
+  seedChance?: number;
+}
+
+export const EVENT_CATALOG: readonly EventCandidate[] = [
+  {
+    type: "mushrooms",
+    title: "A ring of small mushrooms",
+    description: "Small caps appeared in the dampest corner, darkening the soil around them.",
+    eligible: (state) => state.soilMoisture >= 52,
+    richness: 1
+  },
+  {
+    type: "fireflies",
+    title: "Fireflies at dusk",
+    description: "A handful of quiet lights drifted between the leaves.",
+    eligible: (_state, weather) => weather.season !== "winter",
+    biodiversity: 2,
+    tranquility: 0.5
+  },
+  {
+    type: "moth",
+    title: "A pale moth",
+    description: "It rested beneath a flower and continued on before dawn.",
+    eligible: (state) => state.plants.length > 0,
+    biodiversity: 2
+  },
+  {
+    type: "bird",
+    title: "A visiting bird",
+    description: "It paused beside the path and left a tiny unfamiliar seed behind.",
+    eligible: (state) => state.plants.length > 0,
+    biodiversity: 2,
+    seedChance: 0.36
+  },
+  {
+    type: "soft_rain",
+    title: "A very soft rain",
+    description: "The shower was barely audible, stippling the leaves and exposed soil.",
+    eligible: (_state, weather) => weather.rainMm > 0,
+    tranquility: 0.6
+  },
+  {
+    type: "gift_seed",
+    title: "A wind-carried seed",
+    description: "A seed crossed into the garden on the wind.",
+    eligible: (state) => state.plants.length < MAX_PLANTS,
+    seedChance: 0.72
+  },
+  {
+    type: "ladybird",
+    title: "A ladybird on a leaf",
+    description: "A red-backed ladybird crossed the veins of a low leaf.",
+    eligible: (state, weather) => state.plants.length > 0 && weather.season !== "winter",
+    biodiversity: 1
+  },
+  {
+    type: "bumblebee",
+    title: "A bumblebee among the blooms",
+    description: "It moved from flower to flower, dusted with fine gold pollen.",
+    eligible: (state, weather) =>
+      ["spring", "summer"].includes(weather.season) && state.plants.some((plant) => ["blooming", "mature"].includes(plant.stage)),
+    biodiversity: 2
+  },
+  {
+    type: "spiderweb",
+    title: "Dew on a spiderweb",
+    description: "A fine web between two stems held a row of bright droplets.",
+    eligible: (state, weather) =>
+      state.plants.length >= 2 && (["mist", "cloudy"].includes(weather.condition) || state.soilMoisture >= 62),
+    biodiversity: 1
+  },
+  {
+    type: "snail",
+    title: "A silver snail trail",
+    description: "A narrow shining trail curved beneath the lower leaves.",
+    eligible: (state, weather) => state.plants.length > 0 && (weather.rainMm > 0 || state.soilMoisture >= 68),
+    biodiversity: 1,
+    richness: 0.4
+  },
+  {
+    type: "dragonfly",
+    title: "A blue dragonfly",
+    description: "It balanced on a stem, its wings flashing blue when the light shifted.",
+    eligible: (state, weather) => state.plants.length > 0 && (weather.rainMm > 0 || state.soilMoisture >= 72),
+    biodiversity: 2
+  },
+  {
+    type: "frog",
+    title: "A frog beneath the leaves",
+    description: "A small frog called once from the wet shade and moved deeper into the patch.",
+    eligible: (state, weather) => state.plants.length >= 3 && state.biodiversity >= 20 && (weather.rainMm > 0 || state.soilMoisture >= 76),
+    biodiversity: 2
+  },
+  {
+    type: "fallen_feather",
+    title: "A fallen feather",
+    description: "A small barred feather lay caught between the stems.",
+    eligible: (state) => state.plants.length > 0,
+    biodiversity: 0.5
+  },
+  {
+    type: "rain_puddle",
+    title: "A rain-bright puddle",
+    description: "A shallow puddle held an upside-down piece of sky between the plants.",
+    eligible: (_state, weather) => weather.rainMm >= 4,
+    tranquility: 0.4
+  },
+  {
+    type: "seed_husks",
+    title: "Empty seed husks",
+    description: "Several pale husks gathered where a mature stem met the soil.",
+    eligible: (state) => state.plants.some((plant) => plant.bloomCount > 0),
+    richness: 0.6
+  },
+  {
+    type: "butterfly",
+    title: "A white butterfly",
+    description: "It circled the open flowers before settling on a sunlit leaf.",
+    eligible: (state, weather) =>
+      ["spring", "summer"].includes(weather.season) && state.plants.some((plant) => ["blooming", "mature"].includes(plant.stage)),
+    biodiversity: 2
+  }
+];
+
 export const MODE_SPEED: Record<TimeMode, number> = {
   real: 1,
   demo: 144,
@@ -462,7 +594,7 @@ function advancePlant(
       },
       gardenDay
     );
-    addMilestone(state, "first-bloom", "First bloom", "The first flower opened without being hurried.", "✦", gardenDay);
+    addMilestone(state, "first-bloom", "First bloom", "The garden's first flower opened.", "✦", gardenDay);
   }
 }
 
@@ -470,50 +602,29 @@ function maybeCreateEvent(state: GardenState, day: number, weather: WeatherDay, 
   if (state.events.filter((event) => !event.acknowledged && event.expiresAtGardenDay >= day).length >= 3) return;
   const chance = 0.012 + state.biodiversity / 10_000;
   if (randomFor(state.seed, `event:${day}`) > chance) return;
-  const candidates: Array<Omit<GardenEvent, "id" | "appearedAt" | "expiresAtGardenDay" | "acknowledged">> = [
-    {
-      type: "mushrooms",
-      title: "A ring of small mushrooms",
-      description: "They appeared in the dampest corner and will fade naturally after a while."
-    },
-    {
-      type: "fireflies",
-      title: "Fireflies at dusk",
-      description: "A handful of quiet lights drifted between the leaves."
-    },
-    { type: "moth", title: "A pale moth", description: "It rested beneath a flower and continued on before dawn." },
-    { type: "bird", title: "A visiting bird", description: "It left a tiny unfamiliar seed beside the path." },
-    {
-      type: "soft_rain",
-      title: "A very soft rain",
-      description: "The shower was barely audible, but the whole garden noticed."
-    }
-  ];
-  if (state.plants.length < MAX_PLANTS) {
-    candidates.push({
-      type: "gift_seed",
-      title: "A wind-carried seed",
-      description: "It may settle on its own. Nothing needs to be done."
-    });
-  }
+  const candidates = EVENT_CATALOG.filter((candidate) => candidate.eligible(state, weather));
+  if (candidates.length === 0) return;
   const chosen = pick(candidates, randomFor(state.seed, `event-kind:${day}`));
   const event: GardenEvent = {
     id: randomUUID(),
     appearedAt: isoAtGardenDay(state, day),
     expiresAtGardenDay: day + 8,
     acknowledged: false,
-    ...chosen
+    type: chosen.type,
+    title: chosen.title,
+    description: chosen.description
   };
   state.events.push(event);
   summary.discoveries.push(chosen.title);
   addChronicle(state, { kind: "discovery", title: chosen.title, text: chosen.description, icon: "✧" }, day);
 
-  if (chosen.type === "gift_seed" && randomFor(state.seed, `event-seed:${day}`) < 0.72) {
+  if (chosen.seedChance && state.plants.length < MAX_PLANTS && randomFor(state.seed, `event-seed:${day}`) < chosen.seedChance) {
     const species = pick(SPECIES_LIST, randomFor(state.seed, `event-species:${day}`));
     state.plants.push(makePlant(state, species.id, day, "wind", 1));
   }
-  if (["fireflies", "moth", "bird"].includes(chosen.type)) state.biodiversity = clamp(state.biodiversity + 2);
-  if (weather.rainMm > 0) state.tranquility = clamp(state.tranquility + 0.6);
+  state.biodiversity = clamp(state.biodiversity + (chosen.biodiversity ?? 0));
+  state.soilRichness = clamp(state.soilRichness + (chosen.richness ?? 0), 25, 100);
+  state.tranquility = clamp(state.tranquility + (chosen.tranquility ?? 0));
 }
 
 function maybeSelfSeed(state: GardenState, day: number): void {
@@ -544,7 +655,7 @@ export function createSelfSeededPlant(
   gardenDay = Math.floor(state.simulatedDays)
 ): Plant {
   if (!state.plants.includes(parent)) throw new Error("A parent plant must belong to this garden.");
-  if (state.plants.length >= MAX_PLANTS) throw new Error("The garden is full enough to grow on its own for now.");
+  if (state.plants.length >= MAX_PLANTS) throw new Error("The living patch has reached its 48-plant capacity.");
   ensurePlantPhenotype(state, parent);
   const child = makePlant(state, parent.species, gardenDay, "self-seeded", parent.generation + 1, undefined, undefined, parent);
   state.plants.push(child);
@@ -675,7 +786,7 @@ export function plantSeed(
   now = new Date()
 ): Plant {
   advanceGarden(state, now);
-  if (state.plants.length >= MAX_PLANTS) throw new Error("The garden is full enough to grow on its own for now.");
+  if (state.plants.length >= MAX_PLANTS) throw new Error("The living patch has reached its 48-plant capacity.");
   const position =
     options.x === undefined && options.y === undefined
       ? undefined
@@ -694,7 +805,7 @@ export function plantSeed(
   addChronicle(state, {
     kind: "plant",
     title: `${displayPlant(plant)} was planted`,
-    text: "A seed was tucked into the soil. It does not need to be rushed.",
+    text: "A seed was tucked into the soil.",
     icon: "·"
   });
   return plant;
@@ -821,21 +932,21 @@ export function configureGarden(
 function makeNarrative(state: GardenState, summary: AdvanceSummary, awayDays: number): string {
   const lines: string[] = [];
   if (awayDays >= 1) {
-    lines.push(`You were away for ${Math.floor(awayDays)} day${awayDays >= 2 ? "s" : ""}. The garden continued without complaint.`);
-  } else if (state.lastVisitedAt) lines.push("You return while the garden is still close to how you left it.");
-  else lines.push("This is your first visit. The soil is open and waiting, but not impatient.");
+    lines.push(`${Math.floor(awayDays)} real day${awayDays >= 2 ? "s have" : " has"} passed since the last visit.`);
+  } else if (state.lastVisitedAt) lines.push("You return on the same real day as the previous visit.");
+  else lines.push("This is the first visit.");
 
   if (summary.rainDays > 0) lines.push(`Rain visited on ${summary.rainDays} garden day${summary.rainDays === 1 ? "" : "s"}.`);
   if (summary.sprouts.length > 0) lines.push(`${summary.sprouts.join(", ")} ${summary.sprouts.length === 1 ? "has" : "have"} emerged.`);
   if (summary.blooms.length > 0) lines.push(`${summary.blooms.join(", ")} bloomed while time was passing.`);
   if (summary.discoveries.length > 0) lines.push(`Something new: ${summary.discoveries.join("; ")}.`);
-  if (state.plants.length === 0) lines.push("There are no planted seeds yet. An empty garden is still a garden beginning.");
+  if (state.plants.length === 0) lines.push("There are no planted seeds yet.");
   else {
     const blooming = state.plants.filter((plant) => plant.stage === "blooming").length;
     lines.push(`${state.plants.length} plant${state.plants.length === 1 ? " lives" : "s live"} here${blooming ? `, with ${blooming} in bloom` : ""}.`);
   }
   const activeEvents = state.events.filter((event) => !event.acknowledged && event.expiresAtGardenDay >= state.simulatedDays);
-  if (activeEvents.length > 0) lines.push(`You notice ${activeEvents.map((event) => event.title.toLowerCase()).join(" and ")}. Nothing demands an immediate response.`);
+  if (activeEvents.length > 0) lines.push(`You notice ${activeEvents.map((event) => event.title.toLowerCase()).join(" and ")}.`);
   return lines.join(" ");
 }
 
@@ -860,7 +971,10 @@ export function visitGarden(state: GardenState, now = new Date()): VisitReport {
   return { state, summary, awayForRealDays, narrative };
 }
 
-export function gardenSnapshot(state: GardenState): Record<string, unknown> {
+export function gardenSnapshot(
+  state: GardenState,
+  options: { includeInternalMilestones?: boolean } = {}
+): Record<string, unknown> {
   state.plants.forEach((plant) => ensurePlantPhenotype(state, plant));
   ensureHerbarium(state);
   const latestWeather = state.weather.at(-1) ?? weatherFor(state, Math.max(0, Math.floor(state.simulatedDays)));
@@ -889,7 +1003,6 @@ export function gardenSnapshot(state: GardenState): Record<string, unknown> {
   return {
     name: state.name,
     gardenDay: Math.floor(state.simulatedDays),
-    mode: state.mode,
     season: latestWeather.season,
     weather: latestWeather,
     weatherSource: {
@@ -930,10 +1043,11 @@ export function gardenSnapshot(state: GardenState): Record<string, unknown> {
       archivedResidents,
       entries: herbariumEntries
     },
-    milestones: state.milestones,
-    recentChronicle: state.chronicle.slice(-8),
-    firstChapter: state.milestones.some((milestone) => milestone.id === "first-chapter")
-      ? "complete — the garden continues"
-      : `${Math.max(0, 90 - Math.floor(state.simulatedDays))} garden days remain`
+    milestones: options.includeInternalMilestones
+      ? state.milestones
+      : state.milestones.filter((milestone) => milestone.id !== "first-chapter"),
+    recentChronicle: state.chronicle
+      .filter((entry) => options.includeInternalMilestones || entry.title !== "The first chapter")
+      .slice(-8)
   };
 }
