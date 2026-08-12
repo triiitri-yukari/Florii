@@ -10,13 +10,22 @@ export type PlantStage =
   | "mature"
   | "resting";
 
-export type SpeciesId =
-  | "moonbell"
-  | "starpetal"
-  | "rainmint"
-  | "emberbloom"
-  | "duskfern"
-  | "cloverlight";
+export const SPECIES_IDS = [
+  "moonbell",
+  "starpetal",
+  "rainmint",
+  "emberbloom",
+  "duskfern",
+  "cloverlight",
+  "snowlace",
+  "sunsigh",
+  "tideglass",
+  "velvethorn",
+  "lanternmoss",
+  "cloudpoppy"
+] as const;
+
+export type SpeciesId = (typeof SPECIES_IDS)[number];
 
 export interface SpeciesDefinition {
   id: SpeciesId;

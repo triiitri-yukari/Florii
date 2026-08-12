@@ -28,7 +28,13 @@ const BLOOM_COLOR_WORDS: Record<SpeciesId, string[]> = {
   rainmint: ["mint-green", "sea-glass", "cool jade"],
   emberbloom: ["coral", "apricot", "warm red"],
   duskfern: ["moss-green", "silver-green", "deep green"],
-  cloverlight: ["lime-white", "pale gold", "spring green"]
+  cloverlight: ["lime-white", "pale gold", "spring green"],
+  snowlace: ["snow-white", "ice-blue", "winter silver"],
+  sunsigh: ["sun-gold", "amber", "warm cream"],
+  tideglass: ["sea-glass blue", "tidal teal", "foam-white"],
+  velvethorn: ["mulberry", "wine-purple", "deep plum"],
+  lanternmoss: ["lantern green", "moss-gold", "lichen green"],
+  cloudpoppy: ["cloud violet", "mist-pink", "pale sky"]
 };
 
 const FRAGRANCES: PlantPhenotype["fragrance"][] = ["none", "green", "honey", "rain", "citrus", "night-sweet"];

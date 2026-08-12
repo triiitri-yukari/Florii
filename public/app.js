@@ -1,12 +1,18 @@
 const $ = (selector) => document.querySelector(selector);
 
 const speciesStyle = {
-  moonbell: { color: "#d7d1f0", symbol: "◡̈" },
-  starpetal: { color: "#f2cad8", symbol: "✦" },
-  rainmint: { color: "#b7ddc9", symbol: "⌇" },
-  emberbloom: { color: "#efa18e", symbol: "✺" },
-  duskfern: { color: "#8aab95", symbol: "⌁" },
-  cloverlight: { color: "#d4e89c", symbol: "❋" }
+  moonbell: { color: "#d7d1f0", symbol: "◡̈", shape: "bell", petals: 5 },
+  starpetal: { color: "#f2cad8", symbol: "✦", shape: "star", petals: 6 },
+  rainmint: { color: "#b7ddc9", symbol: "⌇", shape: "leaf", petals: 3 },
+  emberbloom: { color: "#efa18e", symbol: "✺", shape: "ray", petals: 8 },
+  duskfern: { color: "#8aab95", symbol: "⌁", shape: "frond", petals: 6 },
+  cloverlight: { color: "#d4e89c", symbol: "❋", shape: "round", petals: 4 },
+  snowlace: { color: "#dce9f7", symbol: "✼", shape: "lace", petals: 8 },
+  sunsigh: { color: "#f5c45f", symbol: "☼", shape: "ray", petals: 10 },
+  tideglass: { color: "#9cd7dc", symbol: "◇", shape: "diamond", petals: 5 },
+  velvethorn: { color: "#85536d", symbol: "◆", shape: "velvet", petals: 6 },
+  lanternmoss: { color: "#c5cf72", symbol: "◈", shape: "cup", petals: 5 },
+  cloudpoppy: { color: "#d8d3f2", symbol: "✿", shape: "cloud", petals: 5 }
 };
 
 const weatherIcons = {
@@ -45,6 +51,8 @@ function makePlant(plant) {
   const element = document.createElement("div");
   element.className = "plant";
   element.dataset.stage = plant.stage;
+  element.dataset.species = plant.species;
+  element.dataset.shape = style.shape;
   element.dataset.pattern = phenotype.pattern;
   element.dataset.rarity = phenotype.rarity;
   element.style.left = `${plant.position.x}%`;
@@ -69,9 +77,10 @@ function makePlant(plant) {
   }
   const flower = document.createElement("span");
   flower.className = "flower";
-  for (let index = 0; index < 4; index += 1) {
+  for (let index = 0; index < style.petals; index += 1) {
     const petal = document.createElement("i");
     petal.className = "petal";
+    petal.style.setProperty("--petal-angle", `${(360 / style.petals) * index}deg`);
     flower.append(petal);
   }
   element.append(flower);

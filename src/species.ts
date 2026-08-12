@@ -78,6 +78,84 @@ export const SPECIES: Record<SpeciesId, SpeciesDefinition> = {
     waterPreference: 52,
     resilience: 95,
     colors: ["#cfe58c", "#e3f2ad", "#9fc66b"]
+  },
+  snowlace: {
+    id: "snowlace",
+    name: "Snowlace",
+    emoji: "✼",
+    description: "A frost-bright flower whose fine petals hold their shape through cold mornings.",
+    preferredSeasons: ["winter", "spring"],
+    daysToSprout: 9,
+    daysToBud: 48,
+    daysToMature: 78,
+    waterPreference: 55,
+    resilience: 96,
+    colors: ["#f3f7ff", "#cbdcf2", "#a9c2df"]
+  },
+  sunsigh: {
+    id: "sunsigh",
+    name: "Sunsigh",
+    emoji: "☼",
+    description: "A warm, papery bloom that turns its face toward long dry afternoons.",
+    preferredSeasons: ["summer", "autumn"],
+    daysToSprout: 5,
+    daysToBud: 26,
+    daysToMature: 46,
+    waterPreference: 30,
+    resilience: 84,
+    colors: ["#f8d36f", "#f3aa55", "#ffe7a3"]
+  },
+  tideglass: {
+    id: "tideglass",
+    name: "Tideglass",
+    emoji: "◇",
+    description: "A translucent blue flower that gathers droplets along every petal edge.",
+    preferredSeasons: ["spring", "summer"],
+    daysToSprout: 6,
+    daysToBud: 34,
+    daysToMature: 56,
+    waterPreference: 80,
+    resilience: 76,
+    colors: ["#b9e6e8", "#86cbd1", "#d8f4ef"]
+  },
+  velvethorn: {
+    id: "velvethorn",
+    name: "Velvethorn",
+    emoji: "◆",
+    description: "A slow dark bloom with velvet petals and small silver-edged leaves.",
+    preferredSeasons: ["autumn", "winter"],
+    daysToSprout: 10,
+    daysToBud: 50,
+    daysToMature: 82,
+    waterPreference: 40,
+    resilience: 94,
+    colors: ["#75485f", "#9b607b", "#54374f"]
+  },
+  lanternmoss: {
+    id: "lanternmoss",
+    name: "Lanternmoss",
+    emoji: "◈",
+    description: "A damp-loving ground bloom whose tiny cups seem lit at dusk.",
+    preferredSeasons: ["autumn", "winter"],
+    daysToSprout: 4,
+    daysToBud: 28,
+    daysToMature: 48,
+    waterPreference: 75,
+    resilience: 90,
+    colors: ["#c9dc79", "#e8c46a", "#9eb968"]
+  },
+  cloudpoppy: {
+    id: "cloudpoppy",
+    name: "Cloudpoppy",
+    emoji: "✿",
+    description: "A soft wide-petaled flower that trembles even when the air seems still.",
+    preferredSeasons: ["spring", "summer"],
+    daysToSprout: 6,
+    daysToBud: 32,
+    daysToMature: 54,
+    waterPreference: 50,
+    resilience: 68,
+    colors: ["#c9c9f1", "#f3d9e8", "#eef0ff"]
   }
 };
 

@@ -25,7 +25,10 @@ test("the built stdio server completes a real MCP handshake and tool call", asyn
 
     const species = await client.callTool({ name: "florii_list_species", arguments: {} });
     assert.equal(species.isError, undefined);
-    const planted = await client.callTool({ name: "florii_plant", arguments: { species: "moonbell", nickname: "Mori" } });
+    const speciesPayload = species.structuredContent as { species: Array<{ id: string }> };
+    assert.equal(speciesPayload.species.length, 12);
+    assert.ok(speciesPayload.species.some((item) => item.id === "cloudpoppy"));
+    const planted = await client.callTool({ name: "florii_plant", arguments: { species: "cloudpoppy", nickname: "Mori" } });
     assert.equal(planted.isError, undefined);
     const visit = await client.callTool({ name: "florii_visit", arguments: { detail: "full" } });
     assert.equal(visit.isError, undefined);

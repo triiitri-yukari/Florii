@@ -51,6 +51,12 @@ test("the compiled dashboard serves its public assets and garden API", async () 
     const css = await fetch(`http://127.0.0.1:${port}/styles.css`);
     assert.equal(css.status, 200);
     assert.match(css.headers.get("content-type") ?? "", /text\/css/);
+    assert.match(await css.text(), /data-shape="lace"/);
+    const script = await fetch(`http://127.0.0.1:${port}/app.js`);
+    assert.equal(script.status, 200);
+    const scriptText = await script.text();
+    assert.match(scriptText, /cloudpoppy/);
+    assert.match(scriptText, /style\.petals/);
     const api = await fetch(`http://127.0.0.1:${port}/api/garden`);
     const payload = (await api.json()) as { name: string; plants: unknown[]; state: { schemaVersion: number } };
     assert.equal(payload.name, "A Quiet Patch");

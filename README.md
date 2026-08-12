@@ -13,7 +13,7 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 - Rain, dew, soil moisture, biodiversity, wildlife, and quiet discoveries
 - Absence-friendly rules: plants never die because nobody checked in
 - A chronicle of notable changes instead of noisy daily logs
-- Six fictional species with different seasonal and water preferences
+- Twelve fictional species with different seasonal, water, resilience, and growth preferences
 - Persistent individual variation: flower colors, patterns, size, pace, water needs, resilience, and fragrance
 - Second-generation plants inherit their parent's appearance and attributes with gentle mutation
 - Simulated weather by default, or optional real weather from Open-Meteo
@@ -30,6 +30,23 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 | `test` | 1 garden day per 5 seconds | Development and automated checks |
 
 In real mode, seeds usually sprout in several days, first flowers arrive over a few weeks, and the **First Chapter** milestone unlocks after roughly one season. Yearly and generational milestones continue after that.
+
+## Seed catalogue
+
+| Seed | Character | Preferred seasons | Water tendency |
+| --- | --- | --- | --- |
+| Moonbell | Quiet evening bells | Spring, autumn | Moderate |
+| Starpetal | Bright clustered stars | Spring, summer | Moderate-dry |
+| Rainmint | Cool rain-beaded leaves | Spring–autumn | Wet |
+| Emberbloom | Coral dry-weather blooms | Summer, autumn | Dry |
+| Duskfern | Shade-loving dusk fronds | Spring, autumn, winter | Moist |
+| Cloverlight | Quick glowing groundcover | Spring–autumn | Moderate |
+| Snowlace | Slow frost-bright petals | Winter, spring | Moderate |
+| Sunsigh | Warm papery sun blooms | Summer, autumn | Very dry |
+| Tideglass | Translucent droplet-edged flowers | Spring, summer | Very wet |
+| Velvethorn | Slow velvet-dark blooms | Autumn, winter | Dry |
+| Lanternmoss | Tiny dusk-lit cups | Autumn, winter | Wet |
+| Cloudpoppy | Soft trembling wide petals | Spring, summer | Moderate |
 
 ## Quick start
 
@@ -95,7 +112,7 @@ For another MCP host, use its standard local-server shape:
 | Tool | Purpose |
 | --- | --- |
 | `florii_visit` | Resolve elapsed time and take a glance or full visit |
-| `florii_list_species` | Browse the six available seeds |
+| `florii_list_species` | Browse the twelve available seeds |
 | `florii_plant` | Plant a seed, optionally with a nickname and position |
 | `florii_tend` | Water, mulch, prune, sing, observe, shelter, or leave a corner wild |
 | `florii_write_note` | Preserve a thought in the garden chronicle |

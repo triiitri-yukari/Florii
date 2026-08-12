@@ -12,7 +12,7 @@ import {
 } from "./engine.js";
 import { SPECIES_LIST } from "./species.js";
 import { GardenStore } from "./store.js";
-import type { GardenState } from "./types.js";
+import { SPECIES_IDS, type GardenState } from "./types.js";
 import { configureWeather, syncExternalWeather } from "./weather.js";
 
 function jsonResult(value: unknown, message?: string) {
@@ -87,7 +87,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
       description:
         "Plant one seed in Florii. Every seed becomes an individual with persistent colors, pattern, size, growth, water, resilience, and fragrance attributes. Growth is intentionally slow in real mode and continues between conversations.",
       inputSchema: z.object({
-        species: z.enum(["moonbell", "starpetal", "rainmint", "emberbloom", "duskfern", "cloverlight"]),
+        species: z.enum(SPECIES_IDS),
         nickname: z.string().trim().min(1).max(40).optional(),
         x: z.number().min(2).max(98).optional().describe("Optional horizontal placement percentage"),
         y: z.number().min(4).max(94).optional().describe("Optional vertical placement percentage")
