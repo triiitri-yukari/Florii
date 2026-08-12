@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -32,6 +32,32 @@ test("the store creates a private persistent garden on first read", async () => 
   assert.equal(garden.schemaVersion, 1);
   assert.equal(garden.revision, 1);
   assert.match(await readFile(store.path, "utf8"), /A Quiet Patch/);
+});
+
+test("the store keeps one previous save and recovers a damaged primary", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "florii-store-"));
+  const store = new GardenStore(directory);
+  await store.transaction((garden) => { garden.name = "Before the rain"; });
+  await store.transaction((garden) => { garden.name = "After the rain"; });
+
+  const backup = JSON.parse(await readFile(store.backupPath, "utf8")) as GardenState;
+  assert.equal(backup.name, "Before the rain");
+  await writeFile(store.path, "{not valid json", "utf8");
+
+  const recovered = await store.read();
+  assert.equal(recovered.name, "Before the rain");
+  assert.equal((JSON.parse(await readFile(store.path, "utf8")) as GardenState).name, "Before the rain");
+});
+
+test("the store recovers from the backup when the primary is missing", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "florii-store-"));
+  const store = new GardenStore(directory);
+  await store.transaction((garden) => { garden.name = "Kept in reserve"; });
+  await store.transaction((garden) => { garden.name = "Latest primary"; });
+  await unlink(store.path);
+
+  const recovered = await store.read();
+  assert.equal(recovered.name, "Kept in reserve");
 });
 
 test("older saves receive stable phenotypes when loaded", async () => {

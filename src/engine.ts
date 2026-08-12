@@ -39,6 +39,7 @@ const BLOOM_COLOR_WORDS: Record<SpeciesId, string[]> = {
 
 const FRAGRANCES: PlantPhenotype["fragrance"][] = ["none", "green", "honey", "rain", "citrus", "night-sweet"];
 const PATTERNS: PlantPhenotype["pattern"][] = ["solid", "gradient", "tipped", "speckled", "bicolor"];
+const AUTO_POSITION_CANDIDATES = 256;
 
 export const MODE_SPEED: Record<TimeMode, number> = {
   real: 1,
@@ -67,6 +68,35 @@ function randomFor(seed: number, key: string): number {
 
 function pick<T>(items: readonly T[], roll: number): T {
   return items[Math.min(items.length - 1, Math.floor(roll * items.length))] as T;
+}
+
+function placementDistance(left: { x: number; y: number }, right: { x: number; y: number }): number {
+  const horizontal = (left.x - right.x) / 8;
+  const vertical = (left.y - right.y) / 12;
+  return Math.hypot(horizontal, vertical);
+}
+
+function chooseOpenPosition(state: GardenState, id: string): { x: number; y: number } {
+  let best = {
+    x: 8 + randomFor(state.seed, `${id}:x:0`) * 84,
+    y: 12 + randomFor(state.seed, `${id}:y:0`) * 75
+  };
+  let bestDistance = -1;
+  for (let index = 0; index < AUTO_POSITION_CANDIDATES; index += 1) {
+    const candidate = {
+      x: 8 + randomFor(state.seed, `${id}:x:${index}`) * 84,
+      y: 12 + randomFor(state.seed, `${id}:y:${index}`) * 75
+    };
+    const nearest = state.plants.reduce(
+      (distance, plant) => Math.min(distance, placementDistance(candidate, plant)),
+      Number.POSITIVE_INFINITY
+    );
+    if (nearest > bestDistance) {
+      best = candidate;
+      bestDistance = nearest;
+    }
+  }
+  return best;
 }
 
 function mixHex(left: string, right: string, rightWeight: number): string {
@@ -197,6 +227,7 @@ export function createGarden(
       latitude: null,
       longitude: null,
       placeName: null,
+      timezone: null,
       lastSyncAt: null,
       cachedDays: [],
       lastError: null
@@ -614,6 +645,7 @@ function makePlant(
 ): Plant {
   const id = randomUUID();
   const phenotype = createPhenotype(state, id, species, parent?.phenotype);
+  const resolvedPosition = position ?? chooseOpenPosition(state, id);
   const plant: Plant = {
     id,
     species,
@@ -624,8 +656,8 @@ function makePlant(
     health: 88,
     stage: "seed",
     bloomCount: 0,
-    x: position?.x ?? 8 + randomFor(state.seed, `${id}:x`) * 84,
-    y: position?.y ?? 12 + randomFor(state.seed, `${id}:y`) * 75,
+    x: resolvedPosition.x,
+    y: resolvedPosition.y,
     generation,
     origin,
     traits: [],

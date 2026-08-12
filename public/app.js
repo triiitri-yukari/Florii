@@ -23,6 +23,20 @@ export function timeOfDayForHour(hour) {
   if (hour >= 15 && hour < 19) return "afternoon";
   return "night";
 }
+
+function hourInTimezone(timezone) {
+  if (!timezone) return new Date().getHours();
+  try {
+    const hour = new Intl.DateTimeFormat("en-GB", {
+      timeZone: timezone,
+      hour: "2-digit",
+      hourCycle: "h23"
+    }).formatToParts(new Date()).find((part) => part.type === "hour")?.value;
+    return Number.parseInt(hour ?? "", 10);
+  } catch {
+    return new Date().getHours();
+  }
+}
 export const phrases = {
   seed: "resting beneath the soil",
   sprout: "a new green beginning",
@@ -92,8 +106,10 @@ export function makePlantFigure(plant, placement = true) {
     element.type = "button";
     element.setAttribute("aria-label", `View ${plant.name}, ${phrases[plant.stage] ?? plant.stage}`);
     element.style.left = `${plant.position.x}%`;
-    element.style.top = `${Math.max(51, plant.position.y)}%`;
-    element.style.zIndex = String(Math.round(plant.position.y));
+    const gardenDepth = 49 + plant.position.y * .47;
+    element.style.top = `${gardenDepth}%`;
+    element.style.zIndex = String(Math.round(gardenDepth));
+    element.style.setProperty("--depth-scale", String(.68 + plant.position.y * .0037));
     element.addEventListener("click", () => openPlant(plant));
   }
   element.dataset.stage = plant.stage;
@@ -501,12 +517,12 @@ function renderMilestones(milestones) {
 
 function render(data) {
   currentData = data;
-  const state = data.state;
+  const meta = data.meta ?? {};
   const weather = data.weather;
   const plants = data.plants ?? [];
   const day = Number(data.gardenDay ?? 0);
   const chapterPercent = Math.min(100, Math.floor((day / 90) * 100));
-  const timeOfDay = timeOfDayForHour(new Date().getHours());
+  const timeOfDay = timeOfDayForHour(hourInTimezone(meta.timezone));
 
   document.title = `${data.name} · Florii`;
   $("#garden-name").textContent = data.name;
@@ -532,7 +548,7 @@ function render(data) {
   $("#weather-icon").textContent = weatherIcons[weather.condition] ?? "◌";
   $("#weather-condition").textContent = weather.condition;
   $("#temperature").textContent = `${Math.round(weather.temperatureC)}°`;
-  $("#weather-caption").textContent = `${weather.condition} · ${weather.rainMm ? `${weather.rainMm} mm rain` : "dry light"}`;
+  $("#weather-caption").textContent = `${weather.condition} · ${timeOfDay}`;
   const source = data.weatherSource;
   $("#source-label").textContent = source.active === "open-meteo" ? `weather near ${source.placeName ?? "the garden"}` : "living locally";
   $("#weather-detail").textContent = source.active === "open-meteo"
@@ -546,9 +562,9 @@ function render(data) {
   const catalog = data.catalog ?? [];
   renderHerbarium(data.herbarium, catalog);
   renderSeedLibrary(catalog);
-  renderChronicle(data.recentChronicle ?? [], state.chronicle.length);
+  renderChronicle(data.recentChronicle ?? [], Number(meta.chronicleCount ?? data.recentChronicle?.length ?? 0));
   renderMilestones(data.milestones ?? []);
-  $("#updated-at").textContent = `Garden state checked ${new Date(state.updatedAt).toLocaleString()}`;
+  $("#updated-at").textContent = `Garden state checked ${new Date(meta.updatedAt ?? Date.now()).toLocaleString()}`;
 }
 
 async function loadGarden(showNotice = false) {

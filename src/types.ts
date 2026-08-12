@@ -135,6 +135,7 @@ export interface WeatherConfig {
   latitude: number | null;
   longitude: number | null;
   placeName: string | null;
+  timezone: string | null;
   lastSyncAt: string | null;
   cachedDays: WeatherDay[];
   lastError: string | null;

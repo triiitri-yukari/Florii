@@ -14,6 +14,7 @@ interface OpenMeteoDaily {
 
 interface OpenMeteoResponse {
   daily?: OpenMeteoDaily;
+  timezone?: unknown;
 }
 
 export interface WeatherSyncResult {
@@ -80,6 +81,7 @@ export function configureWeather(
       latitude: null,
       longitude: null,
       placeName: null,
+      timezone: null,
       lastSyncAt: null,
       cachedDays: [],
       lastError: null
@@ -91,6 +93,7 @@ export function configureWeather(
     latitude: config.latitude,
     longitude: config.longitude,
     placeName: config.placeName?.trim() || `${config.latitude.toFixed(3)}, ${config.longitude.toFixed(3)}`,
+    timezone: null,
     lastSyncAt: null,
     cachedDays: [],
     lastError: null
@@ -115,7 +118,7 @@ export async function syncExternalWeather(state: GardenState, force = false): Pr
     return { selected: "open-meteo", active: "simulated", fetched: false, message: config.lastError };
   }
   const lastSync = config.lastSyncAt ? Date.parse(config.lastSyncAt) : 0;
-  if (!force && Date.now() - lastSync < SYNC_INTERVAL_MS && config.cachedDays.length > 0) {
+  if (!force && Date.now() - lastSync < SYNC_INTERVAL_MS && config.cachedDays.length > 0 && config.timezone) {
     return { selected: "open-meteo", active: "open-meteo", fetched: false, message: "Using the recent Open-Meteo cache." };
   }
 
@@ -133,8 +136,10 @@ export async function syncExternalWeather(state: GardenState, force = false): Pr
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
     });
     if (!response.ok) throw new Error(`Open-Meteo responded with HTTP ${response.status}.`);
-    const days = parseDaily((await response.json()) as OpenMeteoResponse, state);
+    const data = (await response.json()) as OpenMeteoResponse;
+    const days = parseDaily(data, state);
     config.cachedDays = days;
+    config.timezone = typeof data.timezone === "string" && data.timezone.trim() ? data.timezone : null;
     config.lastSyncAt = new Date().toISOString();
     config.lastError = null;
     return { selected: "open-meteo", active: "open-meteo", fetched: true, message: `Weather synced for ${config.placeName}.` };

@@ -22,3 +22,7 @@ Use a separate `FLORII_DATA_DIR` while developing so a long-lived garden is neve
 ## Integration coverage
 
 The MCP integration test launches the compiled STDIO server, completes a real MCP handshake, lists tools, plants a named seed, and visits the resulting garden. Other tests cover elapsed-time resolution, persistence and locking, weather fallbacks, ecology, species variation, interactions, and the read-only dashboard.
+
+## Renderer specimen
+
+`docs/current-colors.html` is a development-only specimen sheet showing three generated color variants for every species. Serve the repository root with any static file server, then open `/docs/current-colors.html`; the page deliberately reuses the production renderer and styles from `public`.

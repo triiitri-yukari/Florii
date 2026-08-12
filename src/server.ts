@@ -360,5 +360,13 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
 }
 
 export function summarizeForDashboard(state: GardenState): Record<string, unknown> {
-  return { ...gardenSnapshot(state), catalog: SPECIES_LIST, state };
+  return {
+    ...gardenSnapshot(state),
+    catalog: SPECIES_LIST,
+    meta: {
+      updatedAt: state.updatedAt,
+      chronicleCount: state.chronicle.length,
+      timezone: state.weatherConfig.timezone
+    }
+  };
 }

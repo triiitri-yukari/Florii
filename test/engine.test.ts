@@ -72,6 +72,18 @@ test("seeds of one species grow into persistent individual variations", () => {
   );
 });
 
+test("automatic planting spreads a full patch across the available soil", () => {
+  const garden = createGarden(start, { seed: 505 });
+  const plants = Array.from({ length: 48 }, () => plantSeed(garden, "cloverlight", {}, start));
+  const closePairs = plants.flatMap((left, index) => plants.slice(index + 1).filter((right) => {
+    const horizontal = (left.x - right.x) / 8;
+    const vertical = (left.y - right.y) / 12;
+    return Math.hypot(horizontal, vertical) < 0.55;
+  }));
+  assert.ok(new Set(plants.map((plant) => Math.round(plant.y))).size >= 12);
+  assert.ok(closePairs.length <= 4);
+});
+
 test("growth-rate phenotype changes actual growth", () => {
   const garden = createGarden(start, { seed: 909 });
   const plants = Array.from({ length: 20 }, () => plantSeed(garden, "starpetal", {}, start));

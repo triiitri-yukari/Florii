@@ -74,10 +74,14 @@ test("the compiled dashboard serves its public assets and garden API", async () 
     assert.match(scriptText, /seed-symbol/);
     assert.match(scriptText, /timeOfDayForHour/);
     assert.match(scriptText, /dataset\.time/);
+    assert.match(scriptText, /weather\.condition} · \${timeOfDay}/);
+    assert.doesNotMatch(scriptText, /dry light/);
     const api = await fetch(`http://127.0.0.1:${port}/api/garden`);
-    const payload = (await api.json()) as { name: string; plants: unknown[]; catalog: unknown[]; herbarium: { speciesTotal: number }; state: { schemaVersion: number } };
+    const payload = (await api.json()) as { name: string; plants: unknown[]; catalog: unknown[]; herbarium: { speciesTotal: number }; meta: { updatedAt: string; chronicleCount: number; timezone: string | null }; state?: unknown };
     assert.equal(payload.name, "A Quiet Patch");
-    assert.equal(payload.state.schemaVersion, 1);
+    assert.equal(payload.state, undefined);
+    assert.equal(typeof payload.meta.updatedAt, "string");
+    assert.equal(payload.meta.chronicleCount, 1);
     assert.equal(payload.catalog.length, 12);
     assert.equal(payload.herbarium.speciesTotal, 12);
   } finally {

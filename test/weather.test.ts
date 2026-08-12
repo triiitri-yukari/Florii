@@ -4,6 +4,7 @@ import { createGarden } from "../src/engine.js";
 import { configureWeather, syncExternalWeather } from "../src/weather.js";
 
 const responseBody = {
+  timezone: "Asia/Singapore",
   daily: {
     time: ["2026-08-11", "2026-08-12"],
     weather_code: [2, 61],
@@ -24,6 +25,7 @@ test("Open-Meteo daily weather is cached in Florii's common weather shape", asyn
   assert.equal(garden.weatherConfig.cachedDays[1]?.condition, "rain");
   assert.equal(garden.weatherConfig.cachedDays[1]?.rainMm, 12.5);
   assert.equal(garden.weatherConfig.cachedDays[1]?.source, "open-meteo");
+  assert.equal(garden.weatherConfig.timezone, "Asia/Singapore");
 });
 
 test("a weather outage falls back without blocking the garden", async (context) => {

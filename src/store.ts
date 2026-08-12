@@ -1,4 +1,4 @@
-import { mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createGarden, ensureHerbarium, ensurePlantPhenotype } from "./engine.js";
@@ -20,10 +20,12 @@ export function defaultDataDirectory(): string {
 
 export class GardenStore {
   readonly path: string;
+  readonly backupPath: string;
   private readonly lockPath: string;
 
   constructor(dataDirectory = defaultDataDirectory()) {
     this.path = join(dataDirectory, "garden.json");
+    this.backupPath = `${this.path}.bak`;
     this.lockPath = `${this.path}.lock`;
   }
 
@@ -59,17 +61,30 @@ export class GardenStore {
     throw new Error("Florii could not acquire its garden lock. Another process may still be writing.");
   }
 
+  private async parseSave(path: string): Promise<GardenState> {
+    const content = await readFile(path, "utf8");
+    const parsed = JSON.parse(content) as GardenState;
+    if (parsed.schemaVersion !== 1 || !Array.isArray(parsed.plants) || !Array.isArray(parsed.chronicle)) {
+      throw new Error("Unsupported or damaged garden data.");
+    }
+    return parsed;
+  }
+
   private async readUnlocked(): Promise<GardenState> {
     try {
-      const content = await readFile(this.path, "utf8");
-      const parsed = JSON.parse(content) as GardenState;
-      if (parsed.schemaVersion !== 1 || !Array.isArray(parsed.plants) || !Array.isArray(parsed.chronicle)) {
-        throw new Error("Unsupported or damaged garden data.");
-      }
-      return parsed;
+      return await this.parseSave(this.path);
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-      return createGarden();
+      try {
+        const recovered = await this.parseSave(this.backupPath);
+        await copyFile(this.backupPath, this.path);
+        return recovered;
+      } catch (backupError) {
+        if (
+          (error as NodeJS.ErrnoException).code === "ENOENT" &&
+          (backupError as NodeJS.ErrnoException).code === "ENOENT"
+        ) return createGarden();
+        throw error;
+      }
     }
   }
 
@@ -81,10 +96,16 @@ export class GardenStore {
         latitude: null,
         longitude: null,
         placeName: null,
+        timezone: null,
         lastSyncAt: null,
         cachedDays: [],
         lastError: null
       };
+      changed = true;
+    }
+    const legacyWeather = state.weatherConfig as GardenState["weatherConfig"] & { timezone?: string | null };
+    if (legacyWeather.timezone === undefined) {
+      legacyWeather.timezone = null;
       changed = true;
     }
     for (const plant of state.plants) {
@@ -99,6 +120,12 @@ export class GardenStore {
     state.revision += 1;
     const temporaryPath = `${this.path}.${process.pid}.${Date.now()}.tmp`;
     await writeFile(temporaryPath, `${JSON.stringify(state, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+    try {
+      await this.parseSave(this.path);
+      await copyFile(this.path, this.backupPath);
+    } catch {
+      // A missing or damaged primary save must never replace the last valid backup.
+    }
     await rename(temporaryPath, this.path);
   }
 
@@ -107,7 +134,7 @@ export class GardenStore {
     try {
       const state = await this.readUnlocked();
       const migrated = this.migrate(state);
-      if (state.revision === 0 || migrated) await this.writeUnlocked(state);
+    if (state.revision === 0 || migrated) await this.writeUnlocked(state);
       return structuredClone(state);
     } finally {
       await release();

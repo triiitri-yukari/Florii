@@ -130,7 +130,7 @@ h1 { margin: 0; font-size: clamp(50px, 7.4vw, 86px); line-height: .94; }
 .empty-message { position: absolute; z-index: 11; inset: 60% 0 auto; text-align: center; color: rgba(245,240,224,.84); text-shadow: 0 1px 8px rgba(48,42,34,.38); font: italic 14px Georgia, serif; }
 .garden-footer { display: flex; justify-content: space-between; padding: 14px 20px; font-size: 10px; color: var(--muted); background: rgba(249,247,238,.92); }
 
-.plant { --plant-scale: 1; --genetic-scale: 1; --bloom-scale: 1; --petal-open: 1; --leaf: #688260; --leaf-dark: #526e4e; position: absolute; width: 68px; height: 108px; padding: 0; border: 0; color: inherit; background: transparent; transform: translate(-50%, -100%) scale(var(--plant-scale)) scale(var(--genetic-scale)); transform-origin: 50% 100%; filter: drop-shadow(0 8px 5px rgba(46,45,34,.16)); animation: sway 5s ease-in-out infinite alternate; cursor: pointer; }
+.plant { --plant-scale: 1; --genetic-scale: 1; --depth-scale: 1; --bloom-scale: 1; --petal-open: 1; --leaf: #688260; --leaf-dark: #526e4e; position: absolute; width: 68px; height: 108px; padding: 0; border: 0; color: inherit; background: transparent; transform: translate(-50%, -100%) scale(var(--plant-scale)) scale(var(--genetic-scale)) scale(var(--depth-scale)); transform-origin: 50% 100%; filter: drop-shadow(0 8px 5px rgba(46,45,34,.16)); animation: sway 5s ease-in-out infinite alternate; cursor: pointer; }
 .plant:nth-child(2n) { animation-delay: -2.2s; animation-duration: 6.3s; }
 .plant:focus-visible { outline: 2px solid rgba(250,248,239,.95); outline-offset: 5px; border-radius: 50%; }
 @keyframes sway { from { rotate: -1.2deg; } to { rotate: 1.6deg; } }

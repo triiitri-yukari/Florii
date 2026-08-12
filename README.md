@@ -218,7 +218,7 @@ Contributor notes and local development commands live in [docs/development.md](d
 
 ## Data and recovery
 
-`garden.json` is ordinary readable JSON. Writes go to a private temporary file and are atomically renamed under a short-lived lock, preventing the dashboard and MCP server from overwriting each other. To back up a garden, copy its data directory while Florii is not writing. There is intentionally no remote telemetry or account system.
+`garden.json` is ordinary readable JSON. Writes go to a private temporary file and are atomically renamed under a short-lived lock, preventing the dashboard and MCP server from overwriting each other. Florii keeps one previous valid save at `garden.json.bak` and restores it automatically if the primary JSON becomes damaged. To keep more generations, copy the data directory with your preferred backup tool while Florii is not writing. There is intentionally no remote telemetry or account system.
 
 ## License
 
