@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#eee9db" />
+    <title>Florii · a garden in real time</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="grain"></div>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Florii home">
+          <span class="brand-mark">✦</span>
+          <span>florii</span>
+        </a>
+        <div class="top-actions">
+          <span class="live-dot"><i></i><span id="source-label">living locally</span></span>
+          <button id="refresh" type="button" aria-label="Refresh garden">visit now <span>↗</span></button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <p class="eyebrow">A garden for patient machines</p>
+        <h1 id="garden-name">A Quiet Patch</h1>
+        <p id="garden-subtitle" class="subtitle">Nothing here needs you every day.</p>
+      </section>
+
+      <section class="garden-layout">
+        <article class="garden-card">
+          <div class="garden-sky">
+            <div class="sun"></div>
+            <div class="cloud cloud-one"></div>
+            <div class="cloud cloud-two"></div>
+            <p id="weather-caption" class="weather-caption">quiet weather</p>
+          </div>
+          <div id="garden-field" class="garden-field" aria-label="The current Florii garden">
+            <div class="far-grass"></div>
+            <div class="soil-line"></div>
+            <div id="plants" class="plants"></div>
+            <p id="empty-message" class="empty-message">Open soil. A beginning, not an absence.</p>
+          </div>
+          <footer class="garden-footer">
+            <span id="season-label">spring light</span>
+            <span id="plant-count">0 plants</span>
+          </footer>
+        </article>
+
+        <aside class="day-card">
+          <div>
+            <p class="label">garden day</p>
+            <p id="garden-day" class="big-number">0</p>
+          </div>
+          <div class="chapter-block">
+            <div class="chapter-header">
+              <span>first chapter</span>
+              <span id="chapter-percent">0%</span>
+            </div>
+            <div class="progress"><i id="chapter-progress"></i></div>
+            <p id="chapter-copy">The first season has only just begun.</p>
+          </div>
+          <dl class="measurements">
+            <div><dt>soil</dt><dd id="soil-value">—</dd></div>
+            <div><dt>wildness</dt><dd id="wild-value">—</dd></div>
+            <div><dt>quiet</dt><dd id="quiet-value">—</dd></div>
+          </dl>
+          <p class="no-streak">No streaks. No missed days. Time itself does most of the tending.</p>
+        </aside>
+      </section>
+
+      <section class="lower-grid">
+        <article class="chronicle-card">
+          <header class="section-heading">
+            <div><p class="eyebrow">What time left behind</p><h2>Garden chronicle</h2></div>
+            <span id="entry-count">0 entries</span>
+          </header>
+          <div id="chronicle" class="chronicle"></div>
+        </article>
+
+        <aside class="details-column">
+          <article class="weather-card">
+            <p class="label">today in the garden</p>
+            <div class="weather-main"><span id="weather-icon">◌</span><strong id="temperature">—°</strong></div>
+            <p id="weather-detail">The garden is making its own weather.</p>
+          </article>
+          <article class="milestone-card">
+            <p class="label">kept moments</p>
+            <div id="milestones" class="milestones"><p class="muted">The first little milestone is still ahead.</p></div>
+          </article>
+        </aside>
+      </section>
+
+      <footer class="page-footer">
+        <p>Florii grows between conversations.</p>
+        <p><span id="updated-at">Last looked at just now</span> · <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">weather by Open-Meteo</a></p>
+      </footer>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "name": "florii",
+  "version": "1.0.0",
+  "description": "A quiet, persistent garden for AI agents, grown through real time over MCP.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "bin": {
+    "florii": "dist/src/index.js"
+  },
+  "files": [
+    "dist",
+    "public",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "garden": "tsx src/dashboard.ts",
+    "start": "node dist/src/index.js",
+    "start:garden": "node dist/src/dashboard.js",
+    "test": "node --import tsx --test test/*.test.ts",
+    "test:coverage": "node --import tsx --test --experimental-test-coverage test/*.test.ts",
+    "check": "npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@types/node": "^24.10.0",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3"
+  },
+  "license": "MIT"
+}
