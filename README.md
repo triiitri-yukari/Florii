@@ -17,9 +17,9 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 - Persistent individual variation: flower colors, patterns, size, pace, water needs, resilience, and fragrance
 - Second-generation plants inherit their parent's appearance and attributes with gentle mutation
 - Simulated weather by default, or optional real weather from Open-Meteo
-- MCP tools, resources, a reusable agent prompt, and server-wide instructions
+- MCP tools, resources, a reusable agent prompt, and host-neutral instructions
 - A responsive, read-only human garden view at `http://127.0.0.1:4141`, with individual plant profiles, a living collection, and a filterable seed library
-- Real, demo, and test time scales using the same simulation rules
+- Real and demo time scales using the same simulation rules
 
 ## The pace
 
@@ -27,7 +27,6 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 | --- | --- | --- |
 | `real` | 1 garden day per real day | The actual long-lived garden |
 | `demo` | 1 garden day per 10 minutes | Showing a lifecycle without waiting months |
-| `test` | 1 garden day per 5 seconds | Development and automated checks |
 
 In real mode, seeds usually sprout in several days, first flowers arrive over a few weeks, and the **First Chapter** milestone unlocks after roughly one season. Yearly and generational milestones continue after that.
 
@@ -67,31 +66,9 @@ node /absolute/path/to/Florii/dist/src/index.js
 
 Florii creates its save at `~/.florii/garden.json`. Set `FLORII_DATA_DIR` if you want the garden somewhere else. The save file is deliberately ignored by Git.
 
-## Connect it to Codex or ChatGPT desktop
+## Connect it to an MCP client
 
-Current Codex clients can add a local STDIO server from **Settings → MCP servers → Add server**, or from the CLI:
-
-```bash
-codex mcp add florii --env FLORII_DATA_DIR=/absolute/path/to/my-florii-data -- node /absolute/path/to/Florii/dist/src/index.js
-```
-
-Equivalent `config.toml`:
-
-```toml
-[mcp_servers.florii]
-command = "node"
-args = ["/absolute/path/to/Florii/dist/src/index.js"]
-startup_timeout_sec = 20
-tool_timeout_sec = 30
-default_tools_approval_mode = "auto"
-
-[mcp_servers.florii.env]
-FLORII_DATA_DIR = "/absolute/path/to/my-florii-data"
-```
-
-Restart the client after saving. The ChatGPT desktop app, Codex CLI, and Codex IDE extension share this MCP configuration. Hosted ChatGPT web does not launch local STDIO servers; using Florii there would require packaging it as a remotely hosted plugin later. See the [official Codex MCP guide](https://developers.openai.com/codex/mcp).
-
-For another MCP host, use its standard local-server shape:
+Florii works with any MCP client that can launch a local STDIO server. Add it using your client's local-server settings; the common configuration shape is:
 
 ```json
 {
@@ -107,6 +84,10 @@ For another MCP host, use its standard local-server shape:
 }
 ```
 
+Configuration formats and field names vary between clients, but the command, arguments, and environment values are the same. Restart or reload the client after saving the configuration.
+
+Clients that cannot launch local processes will need Florii to be wrapped and hosted as a remote MCP server instead.
+
 ## MCP surface
 
 | Tool | Purpose |
@@ -117,7 +98,7 @@ For another MCP host, use its standard local-server shape:
 | `florii_tend` | Water, mulch, prune, sing, observe, shelter, or leave a corner wild |
 | `florii_write_note` | Preserve a thought in the garden chronicle |
 | `florii_name_garden` | Name or rename the garden |
-| `florii_set_pace` | Switch between real, demo, and test time |
+| `florii_set_pace` | Switch the garden's time scale |
 | `florii_weather` | Inspect or choose simulated/Open-Meteo weather |
 
 Florii also exposes:
@@ -157,7 +138,7 @@ The garden is offline-first. Its default weather is deterministic and seasonal. 
 
 Open-Meteo needs no API key. Florii caches daily weather for six hours and requests recent daily temperature, precipitation, and WMO weather codes. If the service or network is unavailable, cached data is used when possible; otherwise the simulation continues with Florii weather. No garden action fails because a weather API failed.
 
-Accelerated `demo` and `test` modes always use simulated weather so one real-world rainy day is not copied across dozens of accelerated garden days. Switch back at any time:
+Accelerated modes always use simulated weather so one real-world rainy day is not copied across dozens of accelerated garden days. Switch back at any time:
 
 ```json
 { "source": "simulated" }
@@ -215,16 +196,7 @@ flowchart TD
 
 ## Development
 
-```bash
-npm run dev             # MCP server from TypeScript
-npm run garden          # local viewer from TypeScript
-npm run build           # strict TypeScript compilation
-npm test                # engine, persistence, weather, and MCP integration
-npm run test:coverage   # Node's experimental coverage report
-npm run check           # build + all tests
-```
-
-The integration test launches the compiled STDIO server, performs an actual MCP handshake, lists tools, plants a named seed, and visits the resulting garden.
+Contributor notes and local development commands live in [docs/development.md](docs/development.md).
 
 ## Data and recovery
 
