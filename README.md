@@ -14,6 +14,8 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 - Absence-friendly rules: plants never die because nobody checked in
 - A chronicle of notable changes instead of noisy daily logs
 - Six fictional species with different seasonal and water preferences
+- Persistent individual variation: flower colors, patterns, size, pace, water needs, resilience, and fragrance
+- Second-generation plants inherit their parent's appearance and attributes with gentle mutation
 - Simulated weather by default, or optional real weather from Open-Meteo
 - MCP tools, resources, a reusable agent prompt, and server-wide instructions
 - A local, read-only visual garden at `http://127.0.0.1:4141`
@@ -107,6 +109,21 @@ Florii also exposes:
 - `florii://garden/chronicle` — full Markdown chronicle
 - `florii://guide` — the low-maintenance play contract
 - `spend-a-moment-in-florii` — a prompt that invites one quiet visit, not a checklist
+
+## Individual plants
+
+Species defines the broad lifecycle, but it does not fully determine a plant. Every planted or wind-carried seed receives a permanent phenotype:
+
+- primary, secondary, and center colors
+- solid, gradient, tipped, speckled, or bicolor petals
+- individual height and bloom size
+- functional growth-rate, water-need, and resilience values
+- an optional green, honey, rain, citrus, or night-sweet fragrance
+- common, unusual, or rare variation
+
+These values are saved with the plant and shown in `florii_visit` results and the local garden view. They are not cosmetic labels: growth rate changes daily growth, water need changes moisture fit and stress, and resilience changes recovery.
+
+When a mature plant self-seeds, its child normally inherits its colors, pattern, fragrance, stature, and growing tendencies, with a small mutation toward the species' natural range. This allows a garden to develop its own little family lines over the years without turning heredity into a breeding spreadsheet.
 
 ## Optional real weather
 

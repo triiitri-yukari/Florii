@@ -52,7 +52,7 @@ test("the compiled dashboard serves its public assets and garden API", async () 
     assert.equal(css.status, 200);
     assert.match(css.headers.get("content-type") ?? "", /text\/css/);
     const api = await fetch(`http://127.0.0.1:${port}/api/garden`);
-    const payload = (await api.json()) as { name: string; state: { schemaVersion: number } };
+    const payload = (await api.json()) as { name: string; plants: unknown[]; state: { schemaVersion: number } };
     assert.equal(payload.name, "A Quiet Patch");
     assert.equal(payload.state.schemaVersion, 1);
   } finally {

@@ -31,17 +31,35 @@ const phrases = {
 
 function makePlant(plant) {
   const style = speciesStyle[plant.species] ?? speciesStyle.starpetal;
+  const phenotype = plant.phenotype ?? {
+    primaryColor: style.color,
+    secondaryColor: style.color,
+    centerColor: "#d7b66d",
+    pattern: "solid",
+    height: 1,
+    bloomSize: 1,
+    colorName: "soft-colored",
+    fragrance: "none",
+    rarity: "common"
+  };
   const element = document.createElement("div");
   element.className = "plant";
   element.dataset.stage = plant.stage;
+  element.dataset.pattern = phenotype.pattern;
+  element.dataset.rarity = phenotype.rarity;
   element.style.left = `${plant.position.x}%`;
   element.style.top = `${Math.max(51, plant.position.y)}%`;
-  element.style.setProperty("--flower", style.color);
+  element.style.setProperty("--flower", phenotype.primaryColor);
+  element.style.setProperty("--flower-2", phenotype.secondaryColor);
+  element.style.setProperty("--flower-center", phenotype.centerColor);
+  element.style.setProperty("--genetic-scale", phenotype.height);
+  element.style.setProperty("--bloom-scale", phenotype.bloomSize);
   element.style.zIndex = String(Math.round(plant.position.y));
 
   const label = document.createElement("span");
   label.className = "plant-label";
-  label.textContent = `${plant.name} · ${phrases[plant.stage] ?? plant.stage}`;
+  const traitText = plant.traits?.length ? ` · ${plant.traits.join(", ")}` : "";
+  label.textContent = `${plant.name} · ${phenotype.colorName} ${phenotype.pattern} · ${phrases[plant.stage] ?? plant.stage}${traitText}`;
   element.append(label);
 
   for (const className of ["stem", "leaf left", "leaf right"]) {

@@ -1,7 +1,7 @@
 import { mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { createGarden } from "./engine.js";
+import { createGarden, ensurePlantPhenotype } from "./engine.js";
 import type { GardenState } from "./types.js";
 
 const LOCK_WAIT_MS = 40;
@@ -66,22 +66,32 @@ export class GardenStore {
       if (parsed.schemaVersion !== 1 || !Array.isArray(parsed.plants) || !Array.isArray(parsed.chronicle)) {
         throw new Error("Unsupported or damaged garden data.");
       }
-      if (!parsed.weatherConfig) {
-        parsed.weatherConfig = {
-          source: "simulated",
-          latitude: null,
-          longitude: null,
-          placeName: null,
-          lastSyncAt: null,
-          cachedDays: [],
-          lastError: null
-        };
-      }
       return parsed;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
       return createGarden();
     }
+  }
+
+  private migrate(state: GardenState): boolean {
+    let changed = false;
+    if (!state.weatherConfig) {
+      state.weatherConfig = {
+        source: "simulated",
+        latitude: null,
+        longitude: null,
+        placeName: null,
+        lastSyncAt: null,
+        cachedDays: [],
+        lastError: null
+      };
+      changed = true;
+    }
+    for (const plant of state.plants) {
+      if (!plant.phenotype) changed = true;
+      ensurePlantPhenotype(state, plant);
+    }
+    return changed;
   }
 
   private async writeUnlocked(state: GardenState): Promise<void> {
@@ -95,7 +105,8 @@ export class GardenStore {
     const release = await this.acquireLock();
     try {
       const state = await this.readUnlocked();
-      if (state.revision === 0) await this.writeUnlocked(state);
+      const migrated = this.migrate(state);
+      if (state.revision === 0 || migrated) await this.writeUnlocked(state);
       return structuredClone(state);
     } finally {
       await release();
@@ -106,6 +117,7 @@ export class GardenStore {
     const release = await this.acquireLock();
     try {
       const state = await this.readUnlocked();
+      this.migrate(state);
       const result = await mutate(state);
       await this.writeUnlocked(state);
       return { state: structuredClone(state), result };

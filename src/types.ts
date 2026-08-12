@@ -32,6 +32,21 @@ export interface SpeciesDefinition {
   colors: string[];
 }
 
+export interface PlantPhenotype {
+  primaryColor: string;
+  secondaryColor: string;
+  centerColor: string;
+  colorName: string;
+  pattern: "solid" | "gradient" | "tipped" | "speckled" | "bicolor";
+  height: number;
+  bloomSize: number;
+  growthRate: number;
+  waterNeed: number;
+  resilience: number;
+  fragrance: "none" | "green" | "honey" | "rain" | "citrus" | "night-sweet";
+  rarity: "common" | "unusual" | "rare";
+}
+
 export interface Plant {
   id: string;
   species: SpeciesId;
@@ -49,6 +64,7 @@ export interface Plant {
   generation: number;
   origin: "planted" | "wind" | "self-seeded";
   traits: string[];
+  phenotype: PlantPhenotype;
 }
 
 export interface WeatherDay {

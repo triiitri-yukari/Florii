@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { advanceGarden, createGarden, gardenSnapshot, plantSeed, visitGarden } from "../src/engine.js";
+import { advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, visitGarden } from "../src/engine.js";
 
 const start = new Date("2026-03-01T00:00:00.000Z");
 
@@ -11,9 +11,10 @@ test("a garden reaches its first chapter after roughly one season", () => {
 
   assert.equal(summary.gardenDaysPassed, 92);
   assert.ok(plant.ageDays >= 90);
-  assert.ok(plant.bloomCount >= 1);
   assert.ok(garden.milestones.some((milestone) => milestone.id === "first-chapter"));
   assert.equal(gardenSnapshot(garden).firstChapter, "complete — the garden continues");
+  advanceGarden(garden, new Date("2026-10-01T00:00:00.000Z"));
+  assert.ok(plant.bloomCount >= 1);
 });
 
 test("long absences change the story but never kill plants", () => {
@@ -54,4 +55,47 @@ test("weather and growth are deterministic for the same seed", () => {
   advanceGarden(right, new Date("2026-04-01T00:00:00.000Z"));
   assert.deepEqual(left.weather, right.weather);
   assert.equal(left.soilMoisture, right.soilMoisture);
+});
+
+test("seeds of one species grow into persistent individual variations", () => {
+  const garden = createGarden(start, { seed: 808 });
+  const plants = Array.from({ length: 16 }, () => plantSeed(garden, "moonbell", {}, start));
+  const colors = new Set(plants.map((plant) => `${plant.phenotype.primaryColor}:${plant.phenotype.pattern}`));
+  const growthRates = new Set(plants.map((plant) => plant.phenotype.growthRate));
+  const waterNeeds = new Set(plants.map((plant) => plant.phenotype.waterNeed));
+
+  assert.ok(colors.size >= 3);
+  assert.ok(growthRates.size >= 5);
+  assert.ok(waterNeeds.size >= 5);
+  assert.ok(plants.every((plant) => plant.traits.length <= 4));
+  assert.deepEqual(
+    (gardenSnapshot(garden).plants as Array<{ phenotype: unknown }>).map((plant) => plant.phenotype),
+    plants.map((plant) => plant.phenotype)
+  );
+});
+
+test("growth-rate phenotype changes actual growth", () => {
+  const garden = createGarden(start, { seed: 909 });
+  const plants = Array.from({ length: 20 }, () => plantSeed(garden, "starpetal", {}, start));
+  const sorted = [...plants].sort((left, right) => left.phenotype.growthRate - right.phenotype.growthRate);
+  const slow = sorted[0];
+  const fast = sorted.at(-1);
+  assert.ok(slow && fast);
+  slow.phenotype.waterNeed = 55;
+  fast.phenotype.waterNeed = 55;
+  slow.health = fast.health = 90;
+  advanceGarden(garden, new Date("2026-03-21T00:00:00.000Z"));
+  assert.ok(fast.growth > slow.growth);
+});
+
+test("self-seeded plants inherit their parent's phenotype with small variation", () => {
+  const garden = createGarden(start, { seed: 3 });
+  const parent = plantSeed(garden, "starpetal", {}, start);
+  const child = createSelfSeededPlant(garden, parent, 90);
+  assert.equal(child.species, parent.species);
+  assert.equal(child.generation, 2);
+  assert.equal(child.origin, "self-seeded");
+  assert.ok(Math.abs(child.phenotype.growthRate - parent.phenotype.growthRate) <= 0.12);
+  assert.ok(Math.abs(child.phenotype.waterNeed - parent.phenotype.waterNeed) <= 9);
+  assert.ok(Math.abs(child.phenotype.height - parent.phenotype.height) <= 0.16);
 });

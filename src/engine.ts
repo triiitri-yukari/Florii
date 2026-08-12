@@ -8,6 +8,7 @@ import type {
   Hemisphere,
   Milestone,
   Plant,
+  PlantPhenotype,
   PlantStage,
   Season,
   SpeciesId,
@@ -29,6 +30,9 @@ const BLOOM_COLOR_WORDS: Record<SpeciesId, string[]> = {
   duskfern: ["moss-green", "silver-green", "deep green"],
   cloverlight: ["lime-white", "pale gold", "spring green"]
 };
+
+const FRAGRANCES: PlantPhenotype["fragrance"][] = ["none", "green", "honey", "rain", "citrus", "night-sweet"];
+const PATTERNS: PlantPhenotype["pattern"][] = ["solid", "gradient", "tipped", "speckled", "bicolor"];
 
 export const MODE_SPEED: Record<TimeMode, number> = {
   real: 1,
@@ -57,6 +61,84 @@ function randomFor(seed: number, key: string): number {
 
 function pick<T>(items: readonly T[], roll: number): T {
   return items[Math.min(items.length - 1, Math.floor(roll * items.length))] as T;
+}
+
+function mixHex(left: string, right: string, rightWeight: number): string {
+  const parse = (value: string) => [1, 3, 5].map((start) => Number.parseInt(value.slice(start, start + 2), 16));
+  const a = parse(left);
+  const b = parse(right);
+  const channels = a.map((value, index) => Math.round(value * (1 - rightWeight) + (b[index] ?? value) * rightWeight));
+  return `#${channels.map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function phenotypeTraits(phenotype: PlantPhenotype, speciesId: SpeciesId): string[] {
+  const species = SPECIES[speciesId];
+  const traits: string[] = [];
+  if (phenotype.growthRate >= 1.08) traits.push("quick-growing");
+  else if (phenotype.growthRate <= 0.92) traits.push("patient");
+  if (phenotype.waterNeed >= species.waterPreference + 7) traits.push("rain-loving");
+  else if (phenotype.waterNeed <= species.waterPreference - 7) traits.push("dry-rooted");
+  if (phenotype.resilience >= Math.min(98, species.resilience + 6)) traits.push("weather-hardy");
+  if (phenotype.height >= 1.09) traits.push("tall-stemmed");
+  else if (phenotype.height <= 0.91) traits.push("low-growing");
+  if (phenotype.pattern !== "solid") traits.push(phenotype.pattern);
+  if (phenotype.fragrance !== "none") traits.push(`${phenotype.fragrance}-scented`);
+  if (phenotype.rarity === "rare") traits.push("rare variation");
+  return traits.slice(0, 4);
+}
+
+function createPhenotype(
+  state: GardenState,
+  id: string,
+  speciesId: SpeciesId,
+  parent?: PlantPhenotype
+): PlantPhenotype {
+  const species = SPECIES[speciesId];
+  const roll = (key: string) => randomFor(state.seed, `${id}:phenotype:${key}`);
+  const paletteIndex = Math.min(species.colors.length - 1, Math.floor(roll("palette") * species.colors.length));
+  const paletteColor = species.colors[paletteIndex] ?? species.colors[0] ?? "#d9d7ff";
+  const accentColor = species.colors[(paletteIndex + 1 + Math.floor(roll("accent") * (species.colors.length - 1))) % species.colors.length] ?? paletteColor;
+  const rarityRoll = roll("rarity");
+  const rarity: PlantPhenotype["rarity"] = rarityRoll > 0.975 ? "rare" : rarityRoll > 0.82 ? "unusual" : "common";
+  const mutation = parent ? (rarity === "rare" ? 0.28 : rarity === "unusual" ? 0.16 : 0.08) : 0.22;
+  const patternPool = rarity === "common" ? PATTERNS.slice(0, 3) : PATTERNS;
+  const baseNumber = (base: number, spread: number, key: string, min: number, max: number) =>
+    clamp(base + (roll(key) - 0.5) * spread, min, max);
+  const inheritNumber = (parentValue: number, speciesBase: number, spread: number, key: string, min: number, max: number) =>
+    clamp(parentValue * 0.72 + speciesBase * 0.28 + (roll(key) - 0.5) * spread, min, max);
+
+  const phenotype: PlantPhenotype = {
+    primaryColor: parent ? mixHex(parent.primaryColor, paletteColor, mutation) : mixHex(paletteColor, accentColor, roll("blend") * 0.18),
+    secondaryColor: parent ? mixHex(parent.secondaryColor, accentColor, mutation) : mixHex(accentColor, "#fff7df", 0.08 + roll("soften") * 0.18),
+    centerColor: parent ? mixHex(parent.centerColor, "#d7b66d", mutation * 0.55) : mixHex("#d7b66d", accentColor, roll("center") * 0.2),
+    colorName:
+      parent && roll("color-name-inherit") < 0.85
+        ? parent.colorName
+        : BLOOM_COLOR_WORDS[speciesId][paletteIndex] ?? BLOOM_COLOR_WORDS[speciesId][0] ?? "soft-colored",
+    pattern: parent && roll("pattern-inherit") < 0.78 ? parent.pattern : pick(patternPool, roll("pattern")),
+    height: parent ? inheritNumber(parent.height, 1, 0.16, "height", 0.78, 1.25) : baseNumber(1, 0.36, "height", 0.78, 1.25),
+    bloomSize: parent ? inheritNumber(parent.bloomSize, 1, 0.14, "bloom-size", 0.78, 1.28) : baseNumber(1, 0.38, "bloom-size", 0.78, 1.28),
+    growthRate: parent ? inheritNumber(parent.growthRate, 1, 0.12, "growth-rate", 0.84, 1.18) : baseNumber(1, 0.3, "growth-rate", 0.84, 1.18),
+    waterNeed: parent
+      ? inheritNumber(parent.waterNeed, species.waterPreference, 9, "water", 22, 88)
+      : baseNumber(species.waterPreference, 22, "water", 22, 88),
+    resilience: parent
+      ? inheritNumber(parent.resilience, species.resilience, 8, "resilience", 50, 99)
+      : baseNumber(species.resilience, 18, "resilience", 50, 99),
+    fragrance: parent && roll("fragrance-inherit") < 0.82 ? parent.fragrance : pick(FRAGRANCES, roll("fragrance")),
+    rarity
+  };
+  phenotype.height = Math.round(phenotype.height * 100) / 100;
+  phenotype.bloomSize = Math.round(phenotype.bloomSize * 100) / 100;
+  phenotype.growthRate = Math.round(phenotype.growthRate * 100) / 100;
+  phenotype.waterNeed = Math.round(phenotype.waterNeed);
+  phenotype.resilience = Math.round(phenotype.resilience);
+  return phenotype;
+}
+
+export function ensurePlantPhenotype(state: GardenState, plant: Plant): void {
+  if (!plant.phenotype) plant.phenotype = createPhenotype(state, plant.id, plant.species);
+  plant.traits = phenotypeTraits(plant.phenotype, plant.species);
 }
 
 function isoAtGardenDay(state: GardenState, gardenDay: number): string {
@@ -216,16 +298,17 @@ function advancePlant(
   summary: AdvanceSummary
 ): void {
   const species = SPECIES[plant.species];
-  const moistureFit = 1 - Math.min(1, Math.abs(state.soilMoisture - species.waterPreference) / 75);
+  ensurePlantPhenotype(state, plant);
+  const moistureFit = 1 - Math.min(1, Math.abs(state.soilMoisture - plant.phenotype.waterNeed) / 75);
   const seasonalFit = species.preferredSeasons.includes(weather.season) ? 1 : 0.48;
   const healthFit = 0.55 + plant.health / 220;
-  const growthGain = (0.35 + moistureFit * 0.45) * seasonalFit * healthFit;
+  const growthGain = (0.35 + moistureFit * 0.45) * seasonalFit * healthFit * plant.phenotype.growthRate;
   plant.ageDays += 1;
   plant.growth = Math.round((plant.growth + growthGain) * 100) / 100;
 
   const harshness = weather.condition === "frost" && !species.preferredSeasons.includes("winter") ? 2.4 : 0;
-  const moistureStress = Math.max(0, Math.abs(state.soilMoisture - species.waterPreference) - 34) / 22;
-  const recovery = moistureStress === 0 ? 0.45 + species.resilience / 400 : 0;
+  const moistureStress = Math.max(0, Math.abs(state.soilMoisture - plant.phenotype.waterNeed) - 34) / 22;
+  const recovery = moistureStress === 0 ? 0.45 + plant.phenotype.resilience / 400 : 0;
   plant.health = clamp(plant.health + recovery - moistureStress - harshness, 35, 100);
 
   const before = plant.stage;
@@ -257,7 +340,7 @@ function advancePlant(
       {
         kind: "bloom",
         title: `${name} bloomed`,
-        text: `Its ${pick(BLOOM_COLOR_WORDS[plant.species], randomFor(state.seed, `${plant.id}:color:${plant.bloomCount}`))} petals opened in the ${weather.condition} light.`,
+        text: `Its ${plant.phenotype.colorName}${plant.phenotype.pattern === "solid" ? "" : ` ${plant.phenotype.pattern}`} petals opened in the ${weather.condition} light${plant.phenotype.fragrance === "none" ? "." : `, carrying a ${plant.phenotype.fragrance} scent.`}`,
         icon: species.emoji
       },
       gardenDay
@@ -322,7 +405,7 @@ function maybeSelfSeed(state: GardenState, day: number): void {
   for (const parent of parents) {
     const chance = 0.0007 + state.biodiversity / 80_000;
     if (randomFor(state.seed, `self-seed:${parent.id}:${day}`) < chance) {
-      state.plants.push(makePlant(state, parent.species, day, "self-seeded", parent.generation + 1));
+      createSelfSeededPlant(state, parent, day);
       addChronicle(
         state,
         {
@@ -336,6 +419,19 @@ function maybeSelfSeed(state: GardenState, day: number): void {
       break;
     }
   }
+}
+
+export function createSelfSeededPlant(
+  state: GardenState,
+  parent: Plant,
+  gardenDay = Math.floor(state.simulatedDays)
+): Plant {
+  if (!state.plants.includes(parent)) throw new Error("A parent plant must belong to this garden.");
+  if (state.plants.length >= MAX_PLANTS) throw new Error("The garden is full enough to grow on its own for now.");
+  ensurePlantPhenotype(state, parent);
+  const child = makePlant(state, parent.species, gardenDay, "self-seeded", parent.generation + 1, undefined, undefined, parent);
+  state.plants.push(child);
+  return child;
 }
 
 function updateMilestones(state: GardenState, day: number): void {
@@ -427,11 +523,12 @@ function makePlant(
   origin: Plant["origin"],
   generation: number,
   nickname?: string,
-  position?: { x: number; y: number }
+  position?: { x: number; y: number },
+  parent?: Plant
 ): Plant {
   const id = randomUUID();
-  const traitOptions = ["patient", "bright", "rain-loving", "night-open", "wind-bent", "soft-leafed"];
-  return {
+  const phenotype = createPhenotype(state, id, species, parent?.phenotype);
+  const plant: Plant = {
     id,
     species,
     ...(nickname ? { nickname } : {}),
@@ -445,8 +542,11 @@ function makePlant(
     y: position?.y ?? 12 + randomFor(state.seed, `${id}:y`) * 75,
     generation,
     origin,
-    traits: [pick(traitOptions, randomFor(state.seed, `${id}:trait`))]
+    traits: [],
+    phenotype
   };
+  plant.traits = phenotypeTraits(phenotype, species);
+  return plant;
 }
 
 export function plantSeed(
@@ -605,6 +705,7 @@ export function visitGarden(state: GardenState, now = new Date()): VisitReport {
 }
 
 export function gardenSnapshot(state: GardenState): Record<string, unknown> {
+  state.plants.forEach((plant) => ensurePlantPhenotype(state, plant));
   const latestWeather = state.weather.at(-1) ?? weatherFor(state, Math.max(0, Math.floor(state.simulatedDays)));
   return {
     name: state.name,
@@ -638,7 +739,8 @@ export function gardenSnapshot(state: GardenState): Record<string, unknown> {
       position: { x: Math.round(plant.x), y: Math.round(plant.y) },
       generation: plant.generation,
       origin: plant.origin,
-      traits: plant.traits
+      traits: plant.traits,
+      phenotype: plant.phenotype
     })),
     milestones: state.milestones,
     recentChronicle: state.chronicle.slice(-8),

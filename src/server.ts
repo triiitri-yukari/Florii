@@ -85,7 +85,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
     {
       title: "Plant a seed",
       description:
-        "Plant one seed in Florii. Growth is intentionally slow in real mode and continues between conversations. Pick a species from florii_list_species; a nickname is optional.",
+        "Plant one seed in Florii. Every seed becomes an individual with persistent colors, pattern, size, growth, water, resilience, and fragrance attributes. Growth is intentionally slow in real mode and continues between conversations.",
       inputSchema: z.object({
         species: z.enum(["moonbell", "starpetal", "rainmint", "emberbloom", "duskfern", "cloverlight"]),
         nickname: z.string().trim().min(1).max(40).optional(),
