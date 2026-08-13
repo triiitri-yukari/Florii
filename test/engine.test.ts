@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { EVENT_CATALOG, advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, transplantPlant, visitGarden } from "../src/engine.js";
+import { AMBIENT_OBSERVATIONS, EVENT_CATALOG, advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, transplantPlant, visitGarden } from "../src/engine.js";
 
 const start = new Date("2026-03-01T00:00:00.000Z");
 
 test("the garden offers a varied condition-aware encounter catalogue", () => {
-  assert.equal(EVENT_CATALOG.length, 16);
+  assert.equal(EVENT_CATALOG.length, 24);
   assert.equal(new Set(EVENT_CATALOG.map((event) => event.type)).size, EVENT_CATALOG.length);
   assert.ok(EVENT_CATALOG.every((event) => event.title.length > 5 && event.description.length > 20));
+  assert.ok(EVENT_CATALOG.every((event) => (event.variations?.length ?? 0) >= 2));
+  assert.ok(EVENT_CATALOG.every((event) => event.variations?.every((variation) => variation.description.length > 20)));
+  assert.ok(AMBIENT_OBSERVATIONS.length >= 30);
 
   const dryEmpty = createGarden(start, { seed: 1 });
   dryEmpty.soilMoisture = 20;
@@ -37,11 +40,41 @@ test("long absences change the story but never kill plants", () => {
   plantSeed(garden, "emberbloom", {}, start);
   const report = visitGarden(garden, new Date("2028-03-01T00:00:00.000Z"));
 
-  assert.match(report.narrative, /real days have passed since the last visit/i);
+  assert.match(report.narrative, /real days/i);
   assert.doesNotMatch(report.narrative, /nothing|without complaint|not impatient|immediate response/i);
   assert.ok(garden.plants.length >= 2);
   assert.ok(garden.plants.every((plant) => plant.health >= 35));
   assert.ok(garden.milestones.some((milestone) => milestone.id === "garden-year"));
+});
+
+test("repeated visits describe the same garden with varied, state-aware language", () => {
+  const garden = createGarden(start, { seed: 771 });
+  plantSeed(garden, "cloudpoppy", {}, start);
+  const narratives = new Set<string>();
+
+  for (let minute = 0; minute < 12; minute += 1) {
+    narratives.add(visitGarden(garden, new Date(start.getTime() + minute * 60_000)).narrative);
+  }
+
+  assert.ok(narratives.size >= 5);
+  assert.ok([...narratives].every((narrative) => /soil|stem|leaf|light|patch|plant|garden/i.test(narrative)));
+});
+
+test("an active encounter reaches the visit narrative with its natural description", () => {
+  const garden = createGarden(start, { seed: 88 });
+  garden.events.push({
+    id: "test-event",
+    type: "lacewing",
+    appearedAt: start.toISOString(),
+    expiresAtGardenDay: 8,
+    title: "Glass wings beneath a leaf",
+    description: "A pale green lacewing stayed motionless in the cool underside of the plant.",
+    acknowledged: false
+  });
+
+  const report = visitGarden(garden, start);
+  assert.match(report.narrative, /Glass wings beneath a leaf/);
+  assert.match(report.narrative, /pale green lacewing/);
 });
 
 test("test pace advances one garden day every five seconds", () => {

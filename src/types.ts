@@ -183,7 +183,15 @@ export interface GardenEvent {
     | "fallen_feather"
     | "rain_puddle"
     | "seed_husks"
-    | "butterfly";
+    | "butterfly"
+    | "earthworm_casts"
+    | "lacewing"
+    | "cricket"
+    | "petal_drift"
+    | "frost_crystals"
+    | "field_mouse"
+    | "pollen_dust"
+    | "beetle_tracks";
   appearedAt: string;
   expiresAtGardenDay: number;
   title: string;

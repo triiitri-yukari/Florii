@@ -45,6 +45,7 @@ interface EventCandidate {
   type: GardenEvent["type"];
   title: string;
   description: string;
+  variations?: readonly { title?: string; description: string }[];
   eligible: (state: GardenState, weather: WeatherDay) => boolean;
   biodiversity?: number;
   richness?: number;
@@ -57,6 +58,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "mushrooms",
     title: "A ring of small mushrooms",
     description: "Small caps appeared in the dampest corner, darkening the soil around them.",
+    variations: [
+      { title: "Mushrooms after rain", description: "Three pearl-grey caps pushed through the leaf litter before the soil had dried." },
+      { title: "A hidden mushroom ring", description: "A loose circle of tiny mushrooms showed beneath the lowest leaves." }
+    ],
     eligible: (state) => state.soilMoisture >= 52,
     richness: 1
   },
@@ -64,6 +69,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "fireflies",
     title: "Fireflies at dusk",
     description: "A handful of quiet lights drifted between the leaves.",
+    variations: [
+      { title: "Low lights at dusk", description: "Small green lights blinked close to the soil, disappearing whenever they crossed a stem." },
+      { title: "Fireflies between the stems", description: "Several fireflies traced slow, uneven paths through the darker half of the patch." }
+    ],
     eligible: (_state, weather) => weather.season !== "winter",
     biodiversity: 2,
     tranquility: 0.5
@@ -72,6 +81,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "moth",
     title: "A pale moth",
     description: "It rested beneath a flower and continued on before dawn.",
+    variations: [
+      { title: "A moth under one petal", description: "A cream-coloured moth folded itself beneath an open flower until the air warmed." },
+      { title: "Powdered wings", description: "A small moth left a faint dusting on the leaf where it had rested." }
+    ],
     eligible: (state) => state.plants.length > 0,
     biodiversity: 2
   },
@@ -79,6 +92,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "bird",
     title: "A visiting bird",
     description: "It paused beside the path and left a tiny unfamiliar seed behind.",
+    variations: [
+      { title: "A bird at the garden edge", description: "A brown bird searched the loose soil, then flicked a seed from its beak." },
+      { title: "Brief wingbeats", description: "A bird landed between two plants, disturbed the mulch, and was gone again." }
+    ],
     eligible: (state) => state.plants.length > 0,
     biodiversity: 2,
     seedChance: 0.36
@@ -87,6 +104,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "soft_rain",
     title: "A very soft rain",
     description: "The shower was barely audible, stippling the leaves and exposed soil.",
+    variations: [
+      { title: "Rain fine as dust", description: "Fine rain silvered the stems without flattening even the smallest flower." },
+      { title: "A passing shower", description: "A short shower darkened the earth in scattered patches and left beads under the leaves." }
+    ],
     eligible: (_state, weather) => weather.rainMm > 0,
     tranquility: 0.6
   },
@@ -94,6 +115,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "gift_seed",
     title: "A wind-carried seed",
     description: "A seed crossed into the garden on the wind.",
+    variations: [
+      { title: "A seed in the grass", description: "A papery seed caught at the garden edge after travelling in on a dry gust." },
+      { title: "An unexpected seed", description: "A small winged seed settled into an open pocket of soil." }
+    ],
     eligible: (state) => state.plants.length < MAX_PLANTS,
     seedChance: 0.72
   },
@@ -101,6 +126,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "ladybird",
     title: "A ladybird on a leaf",
     description: "A red-backed ladybird crossed the veins of a low leaf.",
+    variations: [
+      { title: "A spotted visitor", description: "A ladybird climbed to the tip of a leaf and opened its wings into the light." },
+      { title: "Red among the green", description: "A tiny red shell moved slowly along the underside of a stem." }
+    ],
     eligible: (state, weather) => state.plants.length > 0 && weather.season !== "winter",
     biodiversity: 1
   },
@@ -108,6 +137,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "bumblebee",
     title: "A bumblebee among the blooms",
     description: "It moved from flower to flower, dusted with fine gold pollen.",
+    variations: [
+      { title: "A heavy bumblebee", description: "A bumblebee bent one bloom under its weight before lifting toward the next." },
+      { title: "Gold-dusted wings", description: "A low hum travelled across the flowers as a bee worked through the open petals." }
+    ],
     eligible: (state, weather) =>
       ["spring", "summer"].includes(weather.season) && state.plants.some((plant) => ["blooming", "mature"].includes(plant.stage)),
     biodiversity: 2
@@ -116,6 +149,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "spiderweb",
     title: "Dew on a spiderweb",
     description: "A fine web between two stems held a row of bright droplets.",
+    variations: [
+      { title: "A web drawn in dew", description: "Dew revealed a small wheel of silk that had been invisible the day before." },
+      { title: "Silver thread between stems", description: "A loose spider thread caught the light and bowed under three clear drops." }
+    ],
     eligible: (state, weather) =>
       state.plants.length >= 2 && (["mist", "cloudy"].includes(weather.condition) || state.soilMoisture >= 62),
     biodiversity: 1
@@ -124,6 +161,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "snail",
     title: "A silver snail trail",
     description: "A narrow shining trail curved beneath the lower leaves.",
+    variations: [
+      { title: "A snail in the wet shade", description: "A small striped snail rested where damp soil met the lowest leaf." },
+      { title: "A shining path", description: "A silver line crossed the dark soil and vanished beneath a plant." }
+    ],
     eligible: (state, weather) => state.plants.length > 0 && (weather.rainMm > 0 || state.soilMoisture >= 68),
     biodiversity: 1,
     richness: 0.4
@@ -132,6 +173,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "dragonfly",
     title: "A blue dragonfly",
     description: "It balanced on a stem, its wings flashing blue when the light shifted.",
+    variations: [
+      { title: "A dragonfly at rest", description: "Four glassy wings held still above a wet stem for several minutes." },
+      { title: "Blue over the wet leaves", description: "A blue dragonfly made two quick circuits of the patch before settling." }
+    ],
     eligible: (state, weather) => state.plants.length > 0 && (weather.rainMm > 0 || state.soilMoisture >= 72),
     biodiversity: 2
   },
@@ -139,6 +184,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "frog",
     title: "A frog beneath the leaves",
     description: "A small frog called once from the wet shade and moved deeper into the patch.",
+    variations: [
+      { title: "A frog in the mulch", description: "Two bright eyes appeared between damp leaves before the frog slipped out of sight." },
+      { title: "One note from the shade", description: "A soft frog call came from beneath the densest plants after the rain." }
+    ],
     eligible: (state, weather) => state.plants.length >= 3 && state.biodiversity >= 20 && (weather.rainMm > 0 || state.soilMoisture >= 76),
     biodiversity: 2
   },
@@ -146,6 +195,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "fallen_feather",
     title: "A fallen feather",
     description: "A small barred feather lay caught between the stems.",
+    variations: [
+      { title: "A feather at the path", description: "A pale feather turned slowly in the grass until a stem held it in place." },
+      { title: "A small grey feather", description: "One grey feather had landed point-first in the loose earth." }
+    ],
     eligible: (state) => state.plants.length > 0,
     biodiversity: 0.5
   },
@@ -153,6 +206,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "rain_puddle",
     title: "A rain-bright puddle",
     description: "A shallow puddle held an upside-down piece of sky between the plants.",
+    variations: [
+      { title: "Sky in a puddle", description: "Rain gathered in a low place, reflecting stems that seemed to grow downward." },
+      { title: "A temporary pool", description: "A clear puddle formed beside the path, with one petal floating at its edge." }
+    ],
     eligible: (_state, weather) => weather.rainMm >= 4,
     tranquility: 0.4
   },
@@ -160,6 +217,10 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "seed_husks",
     title: "Empty seed husks",
     description: "Several pale husks gathered where a mature stem met the soil.",
+    variations: [
+      { title: "Husks beneath an old bloom", description: "Dry seed cases rattled softly against the base of a mature plant." },
+      { title: "Signs of scattered seed", description: "Split husks and a little chaff had collected in the shelter of the stems." }
+    ],
     eligible: (state) => state.plants.some((plant) => plant.bloomCount > 0),
     richness: 0.6
   },
@@ -167,10 +228,189 @@ export const EVENT_CATALOG: readonly EventCandidate[] = [
     type: "butterfly",
     title: "A white butterfly",
     description: "It circled the open flowers before settling on a sunlit leaf.",
+    variations: [
+      { title: "White wings over the flowers", description: "A white butterfly moved through the blooms in a slow, wavering line." },
+      { title: "A butterfly in the warm light", description: "Pale wings opened and closed on a leaf above the soil." }
+    ],
     eligible: (state, weather) =>
       ["spring", "summer"].includes(weather.season) && state.plants.some((plant) => ["blooming", "mature"].includes(plant.stage)),
     biodiversity: 2
+  },
+  {
+    type: "earthworm_casts",
+    title: "Fresh earthworm casts",
+    description: "Small dark coils of earth appeared where the soil stayed moist beneath the mulch.",
+    variations: [
+      { title: "Earth moved overnight", description: "Fine, newly turned soil marked an earthworm's route below the surface." },
+      { title: "A living soil", description: "Tiny mounds beside the stems showed where earthworms had worked after rain." }
+    ],
+    eligible: (state) => state.soilMoisture >= 58 && state.soilRichness >= 42,
+    richness: 0.8
+  },
+  {
+    type: "lacewing",
+    title: "A green lacewing",
+    description: "A lacewing rested under a leaf, its clear wings crossed like two pieces of glass.",
+    variations: [
+      { title: "Glass wings beneath a leaf", description: "A pale green lacewing stayed motionless in the cool underside of the plant." },
+      { title: "A lacewing at dusk", description: "Delicate netted wings flickered once before their owner moved deeper into the stems." }
+    ],
+    eligible: (state, weather) => state.plants.length >= 2 && weather.season !== "winter",
+    biodiversity: 1.5
+  },
+  {
+    type: "cricket",
+    title: "A cricket after sunset",
+    description: "A cricket called from the garden edge, pausing whenever the leaves shifted.",
+    variations: [
+      { title: "A hidden cricket", description: "A steady chirp came from somewhere beneath the warmest stones." },
+      { title: "Evening rhythm", description: "One cricket set a slow rhythm in the grass beyond the flowers." }
+    ],
+    eligible: (state, weather) => state.plants.length >= 2 && ["summer", "autumn"].includes(weather.season),
+    biodiversity: 1,
+    tranquility: 0.4
+  },
+  {
+    type: "petal_drift",
+    title: "Petals caught in the grass",
+    description: "A few spent petals had fallen together, keeping their colour against the soil.",
+    variations: [
+      { title: "A small drift of petals", description: "Loose petals gathered on one side of the path after a light breeze." },
+      { title: "Colour on the soil", description: "Two fallen petals lay bright and flat beneath the flowering stems." }
+    ],
+    eligible: (state) => state.plants.some((plant) => plant.bloomCount > 0),
+    richness: 0.3,
+    tranquility: 0.3
+  },
+  {
+    type: "frost_crystals",
+    title: "Frost along the leaf edges",
+    description: "Fine crystals traced the smallest leaves and began to melt where the light touched them.",
+    variations: [
+      { title: "A lace of frost", description: "White frost outlined every serration on the sheltered leaves." },
+      { title: "Cold-bright stems", description: "The stems glittered briefly with frost before the garden warmed." }
+    ],
+    eligible: (state, weather) => state.plants.length > 0 && weather.condition === "frost",
+    tranquility: 0.5
+  },
+  {
+    type: "field_mouse",
+    title: "A field mouse's narrow path",
+    description: "A small tunnel through the grass ended beneath the thickest cluster of stems.",
+    variations: [
+      { title: "Tracks no wider than a thumb", description: "Tiny prints crossed a bare patch of soil and disappeared under the leaves." },
+      { title: "A rustle under the plants", description: "Something mouse-small moved through the mulch, leaving a curved path behind." }
+    ],
+    eligible: (state) => state.plants.length >= 6 && state.soilRichness >= 45,
+    biodiversity: 2
+  },
+  {
+    type: "pollen_dust",
+    title: "Pollen on the lower leaves",
+    description: "A fine yellow dust had settled beneath the open flowers.",
+    variations: [
+      { title: "Gold beneath the blooms", description: "Loose pollen marked the leaves below the busiest flowers." },
+      { title: "A trace of pollen", description: "One stem wore a soft line of yellow where a visitor had brushed past." }
+    ],
+    eligible: (state, weather) =>
+      weather.condition === "clear" && state.plants.some((plant) => ["blooming", "mature"].includes(plant.stage)),
+    biodiversity: 0.5
+  },
+  {
+    type: "beetle_tracks",
+    title: "Beetle tracks in soft soil",
+    description: "A pair of delicate tracks stitched across the damp earth between two plants.",
+    variations: [
+      { title: "A small beetle's crossing", description: "A dark beetle pushed through the loose soil and vanished into the mulch." },
+      { title: "Fine tracks after rain", description: "Tiny repeated marks crossed the garden where the surface remained soft." }
+    ],
+    eligible: (state, weather) => state.plants.length >= 2 && (weather.rainMm > 0 || state.soilMoisture >= 62),
+    biodiversity: 1,
+    richness: 0.3
   }
+];
+
+interface AmbientObservation {
+  eligible: (state: GardenState, weather: WeatherDay) => boolean;
+  text: (state: GardenState, weather: WeatherDay) => string;
+}
+
+export const AMBIENT_OBSERVATIONS: readonly AmbientObservation[] = [
+  { eligible: (state) => state.plants.length === 0, text: () => "The open soil shows a scatter of pale grit and last night's shallow marks." },
+  { eligible: (state) => state.plants.length === 0, text: () => "A loose leaf has stopped near the centre of the unplanted patch." },
+  { eligible: (state) => state.plants.length === 0, text: () => "The bare earth is darker in the hollows and dry along the path." },
+  { eligible: (state) => state.plants.length > 0, text: () => "The stems lean in slightly different directions, each following its own patch of light." },
+  { eligible: (state) => state.plants.length > 0, text: () => "New and old leaves make several distinct shades of green across the patch." },
+  { eligible: (state) => state.plants.length > 0, text: () => "The lowest leaves hold the garden's finest dust along their edges." },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.stage === "seed"),
+    text: (state) => `${displayPlant(state.plants.find((plant) => plant.stage === "seed") as Plant)} is still a hidden shape beneath the soil.`
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.stage === "sprout"),
+    text: (state) => `${displayPlant(state.plants.find((plant) => plant.stage === "sprout") as Plant)} has opened two small leaves close to the ground.`
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.stage === "young"),
+    text: (state) => `${displayPlant(state.plants.find((plant) => plant.stage === "young") as Plant)} is putting more distance between its newest leaves.`
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.stage === "budding"),
+    text: (state) => `The bud on ${displayPlant(state.plants.find((plant) => plant.stage === "budding") as Plant)} is showing a narrow seam of colour.`
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.stage === "blooming"),
+    text: (state) => {
+      const plant = state.plants.find((candidate) => candidate.stage === "blooming") as Plant;
+      return `${displayPlant(plant)} is open in ${plant.phenotype.colorName}${plant.phenotype.pattern === "solid" ? "" : `, with ${plant.phenotype.pattern} petals`}.`;
+    }
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.bloomCount >= 2),
+    text: (state) => `${displayPlant(state.plants.find((plant) => plant.bloomCount >= 2) as Plant)} carries the small asymmetries of having flowered before.`
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.generation >= 2),
+    text: (state) => `${displayPlant(state.plants.find((plant) => plant.generation >= 2) as Plant)} belongs to a generation born inside this garden.`
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.origin === "wind"),
+    text: (state) => `${displayPlant(state.plants.find((plant) => plant.origin === "wind") as Plant)} occupies the place the wind chose for it.`
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.phenotype.rarity !== "common"),
+    text: (state) => {
+      const plant = state.plants.find((candidate) => candidate.phenotype.rarity !== "common") as Plant;
+      return `${displayPlant(plant)} shows its ${plant.phenotype.pattern} colouring most clearly from this angle.`;
+    }
+  },
+  {
+    eligible: (state) => state.plants.some((plant) => plant.phenotype.fragrance !== "none" && ["blooming", "mature"].includes(plant.stage)),
+    text: (state) => {
+      const plant = state.plants.find((candidate) => candidate.phenotype.fragrance !== "none" && ["blooming", "mature"].includes(candidate.stage)) as Plant;
+      return `Close to ${displayPlant(plant)}, the air carries a ${plant.phenotype.fragrance} scent.`;
+    }
+  },
+  { eligible: (state) => state.soilMoisture >= 78, text: () => "The soil gives slightly under the leaf litter, still holding plenty of water." },
+  { eligible: (state) => state.soilMoisture >= 68, text: () => "Moisture has gathered in a dark line along the lowest edge of the patch." },
+  { eligible: (state) => state.soilMoisture <= 34, text: () => "Fine cracks have begun to map the most exposed soil." },
+  { eligible: (state) => state.soilMoisture <= 44, text: () => "The upper soil is pale and loose where the light reaches it." },
+  { eligible: (state) => state.soilRichness >= 68, text: () => "The mulch is breaking down into a dark, crumbly layer around the stems." },
+  { eligible: (state) => state.soilRichness <= 38, text: () => "The soil between the plants looks thin, with small stones showing at the surface." },
+  { eligible: (_state, weather) => weather.condition === "drizzle", text: () => "Drizzle hangs from the leaf tips in a row of uneven beads." },
+  { eligible: (_state, weather) => weather.condition === "rain", text: () => "Rain has pressed the loose soil smooth around the stems." },
+  { eligible: (_state, weather) => weather.condition === "storm", text: () => "The heavier weather has turned several leaves to show their paler undersides." },
+  { eligible: (_state, weather) => weather.condition === "mist", text: () => "Mist softens the far edge of the garden and beads along every fine hair." },
+  { eligible: (_state, weather) => weather.condition === "frost", text: () => "The shaded edges keep a white trace of frost after the open soil has cleared." },
+  { eligible: (_state, weather) => weather.condition === "clear", text: () => "Clear light separates the stems into thin shadows across the soil." },
+  { eligible: (_state, weather) => weather.condition === "cloudy", text: () => "Under the cloud cover, the flower colours look cooler and more even." },
+  { eligible: (_state, weather) => weather.season === "spring", text: () => "Spring growth is brightest at the tips, where the leaves are still soft." },
+  { eligible: (_state, weather) => weather.season === "summer", text: () => "The summer light reaches deep between the stems before the shadows close again." },
+  { eligible: (_state, weather) => weather.season === "autumn", text: () => "A few autumn-coloured fragments have collected against the greener plants." },
+  { eligible: (_state, weather) => weather.season === "winter", text: () => "Winter has sharpened the outlines of stems, soil, and fallen leaves." },
+  { eligible: (state) => state.plants.length >= 12, text: () => "The denser part of the garden now makes its own small pocket of shade." },
+  { eligible: (state) => state.plants.length >= 24, text: () => "Several plants meet leaf to leaf, turning the open patch into narrow paths." },
+  { eligible: (state) => state.plants.length >= 1 && state.plants.length <= 3, text: () => "Most of the soil remains open around the few planted residents." }
 ];
 
 export const MODE_SPEED: Record<TimeMode, number> = {
@@ -600,23 +840,38 @@ function advancePlant(
 
 function maybeCreateEvent(state: GardenState, day: number, weather: WeatherDay, summary: AdvanceSummary): void {
   if (state.events.filter((event) => !event.acknowledged && event.expiresAtGardenDay >= day).length >= 3) return;
-  const chance = 0.012 + state.biodiversity / 10_000;
+  const chance = 0.022 + state.biodiversity / 8_000;
   if (randomFor(state.seed, `event:${day}`) > chance) return;
-  const candidates = EVENT_CATALOG.filter((candidate) => candidate.eligible(state, weather));
+  const eligible = EVENT_CATALOG.filter((candidate) => candidate.eligible(state, weather));
+  const recentlySeen = new Set(
+    state.events.filter((event) => event.expiresAtGardenDay >= day - 22).map((event) => event.type)
+  );
+  const fresh = eligible.filter((candidate) => !recentlySeen.has(candidate.type));
+  const candidates = fresh.length > 0 ? fresh : eligible;
   if (candidates.length === 0) return;
   const chosen = pick(candidates, randomFor(state.seed, `event-kind:${day}`));
+  const rendering = pick(
+    [
+      { title: chosen.title, description: chosen.description },
+      ...(chosen.variations ?? []).map((variation) => ({
+        title: variation.title ?? chosen.title,
+        description: variation.description
+      }))
+    ],
+    randomFor(state.seed, `event-words:${day}:${chosen.type}`)
+  );
   const event: GardenEvent = {
     id: randomUUID(),
     appearedAt: isoAtGardenDay(state, day),
     expiresAtGardenDay: day + 8,
     acknowledged: false,
     type: chosen.type,
-    title: chosen.title,
-    description: chosen.description
+    title: rendering.title,
+    description: rendering.description
   };
   state.events.push(event);
-  summary.discoveries.push(chosen.title);
-  addChronicle(state, { kind: "discovery", title: chosen.title, text: chosen.description, icon: "✧" }, day);
+  summary.discoveries.push(rendering.title);
+  addChronicle(state, { kind: "discovery", title: rendering.title, text: rendering.description, icon: "✧" }, day);
 
   if (chosen.seedChance && state.plants.length < MAX_PLANTS && randomFor(state.seed, `event-seed:${day}`) < chosen.seedChance) {
     const species = pick(SPECIES_LIST, randomFor(state.seed, `event-species:${day}`));
@@ -929,24 +1184,101 @@ export function configureGarden(
   state.updatedAt = now.toISOString();
 }
 
-function makeNarrative(state: GardenState, summary: AdvanceSummary, awayDays: number): string {
-  const lines: string[] = [];
-  if (awayDays >= 1) {
-    lines.push(`${Math.floor(awayDays)} real day${awayDays >= 2 ? "s have" : " has"} passed since the last visit.`);
-  } else if (state.lastVisitedAt) lines.push("You return on the same real day as the previous visit.");
-  else lines.push("This is the first visit.");
+function visitChoice<T>(state: GardenState, now: Date, key: string, choices: readonly T[]): T {
+  return pick(choices, randomFor(state.seed, `visit:${Math.floor(state.simulatedDays)}:${state.revision}:${now.toISOString()}:${key}`));
+}
 
-  if (summary.rainDays > 0) lines.push(`Rain visited on ${summary.rainDays} garden day${summary.rainDays === 1 ? "" : "s"}.`);
-  if (summary.sprouts.length > 0) lines.push(`${summary.sprouts.join(", ")} ${summary.sprouts.length === 1 ? "has" : "have"} emerged.`);
-  if (summary.blooms.length > 0) lines.push(`${summary.blooms.join(", ")} bloomed while time was passing.`);
-  if (summary.discoveries.length > 0) lines.push(`Something new: ${summary.discoveries.join("; ")}.`);
-  if (state.plants.length === 0) lines.push("There are no planted seeds yet.");
+function namesWithAnd(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")}, and ${names.at(-1)}`;
+}
+
+function makeNarrative(state: GardenState, summary: AdvanceSummary, awayDays: number, now: Date): string {
+  const lines: string[] = [];
+  const latestWeather = state.weather.at(-1) ?? weatherFor(state, Math.max(0, Math.floor(state.simulatedDays)));
+  const activeEvents = state.events.filter((event) => !event.acknowledged && event.expiresAtGardenDay >= state.simulatedDays);
+  if (awayDays >= 1) {
+    const days = Math.floor(awayDays);
+    lines.push(visitChoice(state, now, "arrival", [
+      `${days} real day${days === 1 ? " has" : "s have"} passed since the last visit.`,
+      `The previous visit was ${days} real day${days === 1 ? "" : "s"} ago.`,
+      `The garden has had ${days} real day${days === 1 ? "" : "s"} of weather since it was last visited.`
+    ]));
+  } else if (state.lastVisitedAt) {
+    lines.push(visitChoice(state, now, "arrival", [
+      "You return on the same real day as the previous visit.",
+      "This is another look at the garden on the same real day.",
+      "The light still belongs to the same real day as the last visit."
+    ]));
+  } else {
+    lines.push(visitChoice(state, now, "arrival", [
+      "This is the first visit.",
+      "The garden opens on its first visit.",
+      "This is the first recorded look across the patch."
+    ]));
+  }
+
+  if (summary.rainDays > 0) {
+    lines.push(visitChoice(state, now, "rain", [
+      `Rain visited on ${summary.rainDays} garden day${summary.rainDays === 1 ? "" : "s"}.`,
+      `The passing interval included ${summary.rainDays} wet garden day${summary.rainDays === 1 ? "" : "s"}.`,
+      `The soil records rain on ${summary.rainDays} garden day${summary.rainDays === 1 ? "" : "s"}.`
+    ]));
+  }
+  if (summary.sprouts.length > 0) {
+    const names = namesWithAnd(summary.sprouts);
+    lines.push(visitChoice(state, now, "sprouts", [
+      `${names} ${summary.sprouts.length === 1 ? "has" : "have"} emerged.`,
+      `New green appeared from ${names}.`,
+      `${names} ${summary.sprouts.length === 1 ? "is" : "are"} now above the soil.`
+    ]));
+  }
+  if (summary.blooms.length > 0) {
+    const names = namesWithAnd(summary.blooms);
+    lines.push(visitChoice(state, now, "blooms", [
+      `${names} bloomed while time was passing.`,
+      `New flowers opened on ${names}.`,
+      `${names} reached ${summary.blooms.length === 1 ? "its" : "their"} next bloom.`
+    ]));
+  }
+  if (summary.discoveries.length > 0 && activeEvents.length === 0) {
+    lines.push(visitChoice(state, now, "discoveries", [
+      `The garden recorded ${namesWithAnd(summary.discoveries).toLowerCase()}.`,
+      `A new detail entered the chronicle: ${namesWithAnd(summary.discoveries).toLowerCase()}.`,
+      `Among the changes was ${namesWithAnd(summary.discoveries).toLowerCase()}.`
+    ]));
+  }
+  if (state.plants.length === 0) {
+    lines.push(visitChoice(state, now, "population", [
+      "There are no planted seeds yet.",
+      "The living patch is still open soil.",
+      "No seed has been planted in the patch so far."
+    ]));
+  }
   else {
     const blooming = state.plants.filter((plant) => plant.stage === "blooming").length;
-    lines.push(`${state.plants.length} plant${state.plants.length === 1 ? " lives" : "s live"} here${blooming ? `, with ${blooming} in bloom` : ""}.`);
+    const population = state.plants.length === 1 ? "One plant lives" : `${state.plants.length} plants live`;
+    lines.push(visitChoice(state, now, "population", [
+      `${population} here${blooming ? `, with ${blooming} in bloom` : ""}.`,
+      `The living patch holds ${state.plants.length} plant${state.plants.length === 1 ? "" : "s"}${blooming ? `; ${blooming} ${blooming === 1 ? "is" : "are"} flowering` : ""}.`,
+      `${state.plants.length} resident${state.plants.length === 1 ? " occupies" : "s occupy"} the patch${blooming ? `, including ${blooming} open bloom${blooming === 1 ? "" : "s"}` : ""}.`
+    ]));
   }
-  const activeEvents = state.events.filter((event) => !event.acknowledged && event.expiresAtGardenDay >= state.simulatedDays);
-  if (activeEvents.length > 0) lines.push(`You notice ${activeEvents.map((event) => event.title.toLowerCase()).join(" and ")}.`);
+
+  const ambient = AMBIENT_OBSERVATIONS.filter((observation) => observation.eligible(state, latestWeather));
+  if (ambient.length > 0) {
+    lines.push(visitChoice(state, now, "ambient", ambient).text(state, latestWeather));
+  }
+
+  if (activeEvents.length > 0) {
+    lines.push(visitChoice(state, now, "event-intro", [
+      "A closer look reveals another change.",
+      "One detail stands apart from the ordinary growth.",
+      "The garden has added a small scene to its chronicle."
+    ]));
+    lines.push(...activeEvents.map((event) => `${event.title}: ${event.description}`));
+  }
   return lines.join(" ");
 }
 
@@ -954,17 +1286,23 @@ export function visitGarden(state: GardenState, now = new Date()): VisitReport {
   const previousVisit = state.lastVisitedAt ? Date.parse(state.lastVisitedAt) : Date.parse(state.createdAt);
   const awayForRealDays = Math.max(0, (now.getTime() - previousVisit) / DAY_MS);
   const summary = advanceGarden(state, now);
-  const narrative = makeNarrative(state, summary, awayForRealDays);
+  const narrative = makeNarrative(state, summary, awayForRealDays, now);
   state.lastVisitedAt = now.toISOString();
   state.updatedAt = now.toISOString();
   state.events.forEach((event) => {
     if (event.expiresAtGardenDay >= state.simulatedDays) event.acknowledged = true;
   });
   if (awayForRealDays >= 7) {
+    const returnTitle = visitChoice(state, now, "return-title", ["A return", "Footsteps again", "A look around"]);
+    const returnText = visitChoice(state, now, "return-text", [
+      `After ${Math.floor(awayForRealDays)} days away, someone came back to look around.`,
+      `The garden was visited again after ${Math.floor(awayForRealDays)} days.`,
+      `After ${Math.floor(awayForRealDays)} days, the path held fresh footsteps again.`
+    ]);
     addChronicle(state, {
       kind: "visit",
-      title: "A return",
-      text: `After ${Math.floor(awayForRealDays)} days away, someone came back to look around.`,
+      title: returnTitle,
+      text: returnText,
       icon: "◌"
     });
   }

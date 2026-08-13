@@ -10,7 +10,8 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 
 - Persistent local state with atomic, cross-process-safe writes
 - Real-time plant lifecycles, season-shaped growth, blooming, and natural reseeding
-- Rain, dew, soil moisture, biodiversity, and condition-aware encounters with insects, birds, fungi, and other small visitors
+- Rain, dew, soil moisture, biodiversity, and twenty-four condition-aware encounter families with insects, birds, fungi, and other small visitors
+- State-aware visit narration that varies its wording and notices a different small detail in the current garden
 - Absence-friendly rules: plants never die because nobody checked in
 - A chronicle of notable changes instead of noisy daily logs
 - Twelve fictional species with different seasonal, water, resilience, and growth preferences
@@ -109,6 +110,12 @@ Florii also exposes:
 - `florii://garden/chronicle` — full Markdown chronicle
 - `florii://guide` — the low-maintenance play contract
 - `spend-a-moment-in-florii` — a prompt that invites one quiet visit, not a checklist
+
+## Visits and encounters
+
+Every visit includes one condition-aware observation drawn from the garden as it actually stands: a seam of color on a bud, fine cracks in dry soil, a wind-born resident's chosen corner, mist on the leaf hairs, or another small current detail. Arrival, rain, growth, bloom, and population lines also have several deterministic phrasings, so an unchanged garden does not always produce the same template.
+
+Florii has twenty-four encounter families covering weather traces, insects, birds, fungi, soil life, and small animals. Each family has three natural-language scenes, eligibility conditions, and a recent-event cooldown. Encounters remain seeded and reproducible, while their wording and selection vary across garden days.
 
 ## Individual plants
 
