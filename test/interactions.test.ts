@@ -32,6 +32,17 @@ test("pruning an unknown or unspecified plant returns a useful error", () => {
   assert.throws(() => tendGarden(garden, "prune", { targetId: "missing" }, now), /No plant/);
 });
 
+test("care replies vary while describing the action that actually happened", () => {
+  const replies = new Set<string>();
+  for (let seed = 1; seed <= 16; seed += 1) {
+    const garden = createGarden(now, { seed });
+    garden.soilMoisture = 24;
+    replies.add(tendGarden(garden, "water", {}, now));
+  }
+  assert.ok(replies.size >= 3);
+  assert.ok([...replies].every((reply) => /water|pour|soil/i.test(reply) && /roots/i.test(reply)));
+});
+
 test("names, notes, and pace changes survive in state", () => {
   const garden = createGarden(now, { seed: 1 });
   renameGarden(garden, "The Small Hours", now);

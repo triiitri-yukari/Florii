@@ -2,9 +2,7 @@
 
 > A quiet, persistent garden for AI agents—grown through real time over MCP.
 
-Florii is not a streak, a daily chore, or a tamagotchi waiting to punish absence. An agent can plant a few seeds, disappear into other conversations, and return days or weeks later to find that rain visited, a flower opened, or a wind-carried seed settled beside the path.
-
-The first chapter takes about **90 garden days**. The garden itself has no ending.
+Florii is a persistent garden for AI agents. Real time passes between conversations, carrying weather, growth, blooms, wind-borne seeds, and small ecological encounters into the next visit.
 
 ## What grows here
 
@@ -12,7 +10,6 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 - Real-time plant lifecycles, season-shaped growth, blooming, and natural reseeding
 - Rain, dew, soil moisture, biodiversity, and twenty-four condition-aware encounter families with insects, birds, fungi, and other small visitors
 - State-aware visit narration that varies its wording and notices a different small detail in the current garden
-- Absence-friendly rules: plants never die because nobody checked in
 - A chronicle of notable changes instead of noisy daily logs
 - Twelve fictional species with different seasonal, water, resilience, and growth preferences
 - Persistent individual variation: flower colors, patterns, size, pace, water needs, resilience, and fragrance
@@ -31,7 +28,7 @@ The first chapter takes about **90 garden days**. The garden itself has no endin
 | `real` | 1 garden day per real day | The actual long-lived garden |
 | `demo` | 1 garden day per 10 minutes | Showing a lifecycle without waiting months |
 
-In real mode, seeds usually sprout within a few days. Fast species can flower in about a week, most flower within two or three weeks in good conditions, and the slowest species take around a month. Preferred seasons affect growth speed without completely preventing an out-of-season bloom. The **First Chapter** milestone unlocks after roughly one season. Yearly and generational milestones continue after that.
+In real mode, seeds usually sprout within a few days. Fast species can flower in about a week, most flower within two or three weeks in good conditions, and the slowest species take around a month. Preferred seasons affect growth speed without completely preventing an out-of-season bloom. Yearly and generational changes continue to accumulate after that.
 
 ## Seed catalogue
 
@@ -108,12 +105,12 @@ Florii also exposes:
 
 - `florii://garden/current` — current structured snapshot
 - `florii://garden/chronicle` — full Markdown chronicle
-- `florii://guide` — the low-maintenance play contract
+- `florii://guide` — garden context and available creative choices
 - `spend-a-moment-in-florii` — a prompt that invites one quiet visit, not a checklist
 
 ## Visits and encounters
 
-Every visit includes one condition-aware observation drawn from the garden as it actually stands: a seam of color on a bud, fine cracks in dry soil, a wind-born resident's chosen corner, mist on the leaf hairs, or another small current detail. Arrival, rain, growth, bloom, and population lines also have several deterministic phrasings, so an unchanged garden does not always produce the same template.
+Every visit includes condition-aware observations drawn from the garden as it actually stands: a seam of color on a bud, fine cracks in dry soil, a wind-born resident's chosen corner, mist on the leaf hairs, or another small current detail. Living plants also contribute species-specific details, from droplets along a Rainmint leaf to a new Duskfern crozier or the evening curve of a Moonbell. Arrival, rain, growth, bloom, and population lines have several deterministic phrasings, and care actions describe what happened in varied language, so an unchanged garden does not always produce the same template.
 
 Florii has twenty-four encounter families covering weather traces, insects, birds, fungi, soil life, and small animals. Each family has three natural-language scenes, eligibility conditions, and a recent-event cooldown. Encounters remain seeded and reproducible, while their wording and selection vary across garden days.
 
@@ -190,14 +187,14 @@ The viewer binds to loopback by default and provides no write endpoints.
 
 Florii is built around a small contract:
 
-1. Absence creates history, not failure.
+1. Real time creates history between visits.
 2. Care changes character more than score.
 3. Empty space and untidy corners are valid garden states.
-4. Events linger or resolve naturally; none demand instant action.
+4. Events linger and resolve through the simulation.
 5. The agent should visit from curiosity, not optimize a maintenance loop.
-6. Milestones mark chapters without turning the garden into something to finish.
+6. Milestones record long spans and generational changes.
 
-The health floor is intentional. Harsh weather or mismatched care can slow growth and change when a plant blooms, but cannot permanently delete a plant. Florii keeps the consequences expressive and recoverable.
+Plant health has a floor of 35. Weather and moisture can slow growth and change bloom timing; a resident leaves the living patch only through `florii_transplant`.
 
 ## Architecture
 

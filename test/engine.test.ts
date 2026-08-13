@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { AMBIENT_OBSERVATIONS, EVENT_CATALOG, advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, transplantPlant, visitGarden } from "../src/engine.js";
+import { AMBIENT_OBSERVATIONS, EVENT_CATALOG, SPECIES_OBSERVATIONS, advanceGarden, createGarden, createSelfSeededPlant, gardenSnapshot, plantSeed, transplantPlant, visitGarden } from "../src/engine.js";
+import { SPECIES_LIST } from "../src/species.js";
 
 const start = new Date("2026-03-01T00:00:00.000Z");
 
@@ -11,6 +12,8 @@ test("the garden offers a varied condition-aware encounter catalogue", () => {
   assert.ok(EVENT_CATALOG.every((event) => (event.variations?.length ?? 0) >= 2));
   assert.ok(EVENT_CATALOG.every((event) => event.variations?.every((variation) => variation.description.length > 20)));
   assert.ok(AMBIENT_OBSERVATIONS.length >= 30);
+  assert.deepEqual(Object.keys(SPECIES_OBSERVATIONS).sort(), SPECIES_LIST.map((species) => species.id).sort());
+  assert.ok(Object.values(SPECIES_OBSERVATIONS).every((observations) => observations.length >= 4));
 
   const dryEmpty = createGarden(start, { seed: 1 });
   dryEmpty.soilMoisture = 20;
@@ -58,6 +61,16 @@ test("repeated visits describe the same garden with varied, state-aware language
 
   assert.ok(narratives.size >= 5);
   assert.ok([...narratives].every((narrative) => /soil|stem|leaf|light|patch|plant|garden/i.test(narrative)));
+});
+
+test("every species contributes its own observable detail to a visit", () => {
+  for (const species of SPECIES_LIST) {
+    const garden = createGarden(start, { seed: 1_000 + species.daysToMature });
+    const plant = plantSeed(garden, species.id, {}, start);
+    plant.stage = "blooming";
+    const report = visitGarden(garden, start);
+    assert.match(report.narrative, new RegExp(species.name));
+  }
 });
 
 test("an active encounter reaches the visit narrative with its natural description", () => {

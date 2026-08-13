@@ -286,7 +286,7 @@ export function createFloriiServer(store = new GardenStore()): McpServer {
   server.registerResource(
     "florii-guide",
     "florii://guide",
-    { title: "How Florii wants to be played", description: "The design contract for agents visiting Florii.", mimeType: "text/markdown" },
+    { title: "Florii field guide", description: "Garden context and creative choices available to an agent visiting Florii.", mimeType: "text/markdown" },
     async (uri) => ({
       contents: [
         {

@@ -335,6 +335,94 @@ interface AmbientObservation {
   text: (state: GardenState, weather: WeatherDay) => string;
 }
 
+interface SpeciesObservation {
+  eligible: (plant: Plant, weather: WeatherDay) => boolean;
+  text: (plant: Plant, weather: WeatherDay) => string;
+}
+
+const hasStem = (plant: Plant) => plant.stage !== "seed";
+const isBudding = (plant: Plant) => plant.stage === "budding";
+const hasFlower = (plant: Plant) => ["blooming", "mature"].includes(plant.stage);
+const isWetWeather = (_plant: Plant, weather: WeatherDay) => weather.rainMm > 0 || ["drizzle", "mist"].includes(weather.condition);
+const isWetStem = (plant: Plant, weather: WeatherDay) => hasStem(plant) && isWetWeather(plant, weather);
+const isWetFlower = (plant: Plant, weather: WeatherDay) => hasFlower(plant) && isWetWeather(plant, weather);
+const isWetBudOrFlower = (plant: Plant, weather: WeatherDay) => (isBudding(plant) || hasFlower(plant)) && isWetWeather(plant, weather);
+
+export const SPECIES_OBSERVATIONS: Record<SpeciesId, readonly SpeciesObservation[]> = {
+  moonbell: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)} keeps its paired leaves close to the upright stem.` },
+    { eligible: isBudding, text: (plant) => `${displayPlant(plant)}'s pale bell hangs just over the topmost leaf.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)} holds its bell in a quiet curve, as if saving the light for evening.` },
+    { eligible: isWetFlower, text: (plant) => `A clear drop rests beneath ${displayPlant(plant)}'s lowest bell-shaped fold.` }
+  ],
+  starpetal: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)} has set its leaves in a neat ladder up the stem.` },
+    { eligible: isBudding, text: (plant) => `The pointed bud on ${displayPlant(plant)} already hints at the flower's many rays.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)} catches the light separately on each narrow petal point.` },
+    { eligible: (plant, weather) => hasFlower(plant) && weather.condition === "clear", text: (plant) => `${displayPlant(plant)} draws a small star-shaped shadow across the leaves below.` }
+  ],
+  rainmint: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)} shows a cool, blue-green edge along its newest leaves.` },
+    { eligible: isBudding, text: (plant) => `${displayPlant(plant)}'s mint-coloured bud sits between two jagged leaves.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)} keeps a green hush of petals around its small centre.` },
+    { eligible: isWetStem, text: (plant) => `Round beads of water have gathered along ${displayPlant(plant)}'s leaf tips.` }
+  ],
+  emberbloom: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)} carries narrow leaves that leave plenty of warm soil visible.` },
+    { eligible: isBudding, text: (plant) => `A line of ember colour shows through ${displayPlant(plant)}'s closed bud.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)}'s papery petals keep their warm colour at the driest edge of the patch.` },
+    { eligible: (plant, weather) => hasFlower(plant) && weather.condition === "clear", text: (plant) => `The clear light makes ${displayPlant(plant)} look lit from the centre outward.` }
+  ],
+  duskfern: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)}'s lowest fronds make a small green shelter over the soil.` },
+    { eligible: hasStem, text: (plant) => `A new crozier on ${displayPlant(plant)} is still curled tightly at the tip.` },
+    { eligible: (plant) => ["young", "budding", "blooming", "mature"].includes(plant.stage), text: (plant) => `One fresh frond on ${displayPlant(plant)} has loosened another turn since it emerged.` },
+    { eligible: isWetStem, text: (plant) => `Moisture darkens the midrib of ${displayPlant(plant)}'s newest frond.` }
+  ],
+  cloverlight: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)} stays low enough for its leaves to meet the soil's small shadows.` },
+    { eligible: isBudding, text: (plant) => `The tiny bud on ${displayPlant(plant)} rises only a little above its clover-like leaves.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)} makes a close, pale point of light near the ground.` },
+    { eligible: isWetStem, text: (plant) => `After the wet weather, ${displayPlant(plant)}'s leaf centres look briefly luminous.` }
+  ],
+  snowlace: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)}'s fine leaves hold their shape without crowding the stem.` },
+    { eligible: isBudding, text: (plant) => `${displayPlant(plant)}'s pale bud is finely divided along its outer seam.` },
+    { eligible: hasFlower, text: (plant) => `Each narrow edge of ${displayPlant(plant)} gives the flower its lace-like outline.` },
+    { eligible: (plant, weather) => hasFlower(plant) && weather.condition === "frost", text: (plant) => `Frost continues the pattern of ${displayPlant(plant)} beyond the ends of its petals.` }
+  ],
+  sunsigh: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)} spaces its sturdy leaves along the sunward side of the stem.` },
+    { eligible: isBudding, text: (plant) => `${displayPlant(plant)}'s bud has begun to tilt toward the broadest light.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)} spreads its papery rays around a warm, round centre.` },
+    { eligible: (plant, weather) => hasFlower(plant) && weather.condition === "clear", text: (plant) => `${displayPlant(plant)} has turned its open face toward the clearest part of the sky.` }
+  ],
+  tideglass: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)}'s long leaves angle away from the stem like narrow green currents.` },
+    { eligible: isBudding, text: (plant) => `The blue-green bud on ${displayPlant(plant)} is almost translucent at its tip.` },
+    { eligible: hasFlower, text: (plant) => `Light passes softly through the outer petals of ${displayPlant(plant)}.` },
+    { eligible: isWetFlower, text: (plant) => `Droplets line ${displayPlant(plant)}'s petal edges like a second clear outline.` }
+  ],
+  velvethorn: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)}'s small leaves show a thin silver line around their darker green.` },
+    { eligible: isBudding, text: (plant) => `${displayPlant(plant)} holds a dark bud above its silver-edged leaves.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)}'s velvet petals absorb the light, leaving the centre brighter by contrast.` },
+    { eligible: (plant, weather) => hasFlower(plant) && weather.condition === "cloudy", text: (plant) => `Cloud cover deepens ${displayPlant(plant)}'s bloom from plum to near-shadow.` }
+  ],
+  lanternmoss: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)} grows close to the dampest side of its slender stem.` },
+    { eligible: isBudding, text: (plant) => `A row of tiny knobs rims the closed cup of ${displayPlant(plant)}.` },
+    { eligible: hasFlower, text: (plant) => `${displayPlant(plant)}'s little cup holds a muted gold-green glow above the leaves.` },
+    { eligible: isWetBudOrFlower, text: (plant) => `The damp air deepens the mossy green around ${displayPlant(plant)}'s cup.` }
+  ],
+  cloudpoppy: [
+    { eligible: hasStem, text: (plant) => `${displayPlant(plant)}'s broad leaves gather loosely around its straight stem.` },
+    { eligible: isBudding, text: (plant) => `${displayPlant(plant)}'s rounded bud is wrapped in several soft overlapping folds.` },
+    { eligible: hasFlower, text: (plant) => `The wide petals of ${displayPlant(plant)} shift slightly even while the other stems are still.` },
+    { eligible: isWetFlower, text: (plant) => `Rain makes the outer folds of ${displayPlant(plant)} look almost transparent.` }
+  ]
+};
+
 export const AMBIENT_OBSERVATIONS: readonly AmbientObservation[] = [
   { eligible: (state) => state.plants.length === 0, text: () => "The open soil shows a scatter of pale grit and last night's shallow marks." },
   { eligible: (state) => state.plants.length === 0, text: () => "A loose leaf has stopped near the centre of the unplanted patch." },
@@ -1112,39 +1200,86 @@ export function tendGarden(
   advanceGarden(state, now);
   const target = options.targetId ? state.plants.find((plant) => plant.id === options.targetId) : undefined;
   if (options.targetId && !target) throw new Error(`No plant with id ${options.targetId} lives here.`);
+  const moistureBefore = state.soilMoisture;
+  const careChoice = (choices: readonly string[]) =>
+    pick(choices, randomFor(state.seed, `care:${action}:${state.chronicle.length}:${now.toISOString()}:${target?.id ?? "whole-garden"}`));
   let result: string;
   switch (action) {
     case "water":
       state.soilMoisture = clamp(state.soilMoisture + 24);
-      result = "Water darkened the soil and settled around the roots.";
+      result = careChoice(
+        moistureBefore < 38
+          ? [
+              "The dry surface drank quickly, and dark water spread outward around the roots.",
+              "Water vanished into the pale soil before gathering more slowly around the roots.",
+              "The first pour disappeared at once; the next settled into the soil around the roots."
+            ]
+          : [
+              "Water darkened the soil and settled around the roots.",
+              "A thin sheen crossed the soil before sinking evenly toward the roots.",
+              "Water followed the smallest hollows and soaked into the roots' darker ground."
+            ]
+      );
       break;
     case "mulch":
       state.soilMoisture = clamp(state.soilMoisture + 10);
       state.soilRichness = clamp(state.soilRichness + 7);
-      result = "A soft layer of mulch will help the garden hold water for longer.";
+      result = careChoice([
+        "A soft layer of mulch now lies between the stems, holding the darker soil beneath it.",
+        "Dry leaves and fine bark were tucked into the open spaces around the plants.",
+        "Fresh mulch softened the bare ground and gathered into the garden's shallow hollows."
+      ]);
       break;
     case "prune":
       if (!target) throw new Error("Pruning needs a targetId.");
       target.health = clamp(target.health + 8);
       target.growth = Math.max(0, target.growth - 1.5);
-      result = `${displayPlant(target)} was gently pruned and has room for new growth.`;
+      result = careChoice([
+        `${displayPlant(target)} was gently pruned, opening a little space around the newest growth.`,
+        `A tired piece was lifted from ${displayPlant(target)}, leaving the stem clearer.`,
+        `${displayPlant(target)} now has a cleaner outline where the crowded growth was trimmed.`
+      ]);
       break;
     case "sing":
       state.tranquility = clamp(state.tranquility + 8);
-      result = "The song changed no numbers that mattered, but the garden kept it anyway.";
+      result = careChoice([
+        "The song moved through the taller stems and faded into the grass.",
+        "For a while, the garden held a melody alongside the weather.",
+        "The last note lingered between the leaves after the voice had stopped."
+      ]);
       break;
     case "observe":
       state.biodiversity = clamp(state.biodiversity + 0.5);
-      result = "Nothing was changed. Small movements became easier to notice.";
+      result = careChoice([
+        "A pause beside the patch revealed fine tracks between the lower leaves.",
+        "A closer look found several greens that had seemed like one from the path.",
+        "Standing still made the smallest movements between the stems easier to follow."
+      ]);
       break;
     case "leave_wild":
       state.biodiversity = clamp(state.biodiversity + 6);
       state.soilRichness = clamp(state.soilRichness + 2);
-      result = "A corner was left untidy on purpose, making room for smaller lives.";
+      result = careChoice([
+        "A corner was left untidy, with stems and leaf litter making room for smaller lives.",
+        "One edge of the patch now keeps its fallen leaves and uncut growth.",
+        "The wild corner gained a little tangle of cover close to the soil."
+      ]);
       break;
     case "shelter":
       for (const plant of target ? [target] : state.plants) plant.health = clamp(plant.health + 3);
-      result = target ? `${displayPlant(target)} was given a little shelter.` : "The most exposed plants were given a little shelter.";
+      result = careChoice(
+        target
+          ? [
+              `${displayPlant(target)} was given a little shelter on its exposed side.`,
+              `A small screen now breaks the open weather around ${displayPlant(target)}.`,
+              `${displayPlant(target)} stands in a quieter pocket behind the new shelter.`
+            ]
+          : [
+              "The most exposed plants were given a little shelter.",
+              "A low screen now takes the open edge off the weather across the patch.",
+              "The outer stems gained a sheltered side without losing the light."
+            ]
+      );
       break;
   }
   addChronicle(state, {
@@ -1269,6 +1404,16 @@ function makeNarrative(state: GardenState, summary: AdvanceSummary, awayDays: nu
   const ambient = AMBIENT_OBSERVATIONS.filter((observation) => observation.eligible(state, latestWeather));
   if (ambient.length > 0) {
     lines.push(visitChoice(state, now, "ambient", ambient).text(state, latestWeather));
+  }
+
+  const speciesDetails = state.plants.flatMap((plant) =>
+    SPECIES_OBSERVATIONS[plant.species]
+      .filter((observation) => observation.eligible(plant, latestWeather))
+      .map((observation) => ({ plant, observation }))
+  );
+  if (speciesDetails.length > 0) {
+    const detail = visitChoice(state, now, "species-detail", speciesDetails);
+    lines.push(detail.observation.text(detail.plant, latestWeather));
   }
 
   if (activeEvents.length > 0) {
