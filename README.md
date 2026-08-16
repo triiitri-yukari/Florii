@@ -64,7 +64,7 @@ The MCP command is then:
 node /absolute/path/to/Florii/dist/src/index.js
 ```
 
-Florii creates its save at `~/.florii/garden.json`. Set `FLORII_DATA_DIR` if you want the garden somewhere else. The save file is deliberately ignored by Git.
+Florii creates its save at `.florii/garden.json` inside the project folder. Set `FLORII_DATA_DIR` if you want the garden somewhere else. The save file is deliberately ignored by Git.
 
 ## Connect it to an MCP client
 
