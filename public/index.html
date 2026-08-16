@@ -4,46 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#efece0" />
-    <meta name="description" content="A human-readable window into a quiet Florii garden growing in real time." />
-    <title>Florii · a garden in real time</title>
+    <meta name="description" data-i18n-content="pageDescription" content="A human-readable window into a quiet Florii garden growing in real time." />
+    <title data-i18n="pageTitle">Florii · a garden in real time</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
     <main class="shell">
       <header class="topbar">
-        <a class="brand" href="#garden" aria-label="Florii garden home">
+        <a class="brand" href="#garden" data-i18n-aria-label="brandHome" aria-label="Florii garden home">
           <span class="brand-mark" aria-hidden="true">✦</span><span>florii</span>
         </a>
-        <nav class="site-nav" aria-label="Garden sections">
-          <a href="#garden">garden</a><a href="#plants">plants</a><a href="#herbarium">herbarium</a><a href="#seeds">seed library</a><a href="#chronicle">chronicle</a>
+        <nav class="site-nav" data-i18n-aria-label="navSections" aria-label="Garden sections">
+          <a href="#garden" data-i18n="navGarden">garden</a><a href="#plants" data-i18n="navPlants">plants</a><a href="#herbarium" data-i18n="navHerbarium">herbarium</a><a href="#seeds" data-i18n="navSeeds">seed library</a><a href="#chronicle" data-i18n="navChronicle">chronicle</a>
         </nav>
         <div class="top-actions">
-          <span class="live-dot"><i aria-hidden="true"></i><span id="source-label">living locally</span></span>
-          <button id="refresh" type="button"><span>visit now</span><b aria-hidden="true">↗</b></button>
+          <span class="live-dot"><i aria-hidden="true"></i><span id="source-label" data-i18n="livingLocally">living locally</span></span>
+          <button id="language-toggle" class="language-toggle" type="button" aria-label="Switch to Chinese" title="Switch to Chinese">中</button>
+          <button id="refresh" type="button"><span data-i18n="visitNow">visit now</span><b aria-hidden="true">↗</b></button>
         </div>
       </header>
 
       <section class="hero" aria-labelledby="garden-name">
         <div class="hero-copy">
-          <p class="eyebrow">A garden growing between conversations</p>
-          <h1 id="garden-name">A Quiet Patch</h1>
-          <p id="garden-subtitle" class="subtitle">Nothing here needs you every day.</p>
+          <p class="eyebrow" data-i18n="heroEyebrow">A garden growing between conversations</p>
+          <h1 id="garden-name" data-i18n="defaultGardenName">A Quiet Patch</h1>
+          <p id="garden-subtitle" class="subtitle"></p>
         </div>
-        <div class="hero-status" aria-label="Garden status">
-          <div><span>garden day</span><strong id="garden-day">0</strong></div>
-          <div><span>season</span><strong id="hero-season">spring</strong></div>
-          <div><span>living plants</span><strong id="hero-plant-count">0</strong></div>
+        <div class="hero-status" data-i18n-aria-label="gardenStatus" aria-label="Garden status">
+          <div><span data-i18n="gardenDay">garden day</span><strong id="garden-day">0</strong></div>
+          <div><span data-i18n="season">season</span><strong id="hero-season">spring</strong></div>
+          <div><span data-i18n="livingPlants">living plants</span><strong id="hero-plant-count">0</strong></div>
         </div>
       </section>
 
       <section id="garden" class="garden-layout" aria-labelledby="garden-heading">
         <article class="garden-card">
           <div class="garden-toolbar">
-            <div><p class="eyebrow">Live garden</p><h2 id="garden-heading">Today in the patch</h2></div>
-            <p>Choose a plant to see its story</p>
+            <div><p class="eyebrow" data-i18n="liveGarden">Live garden</p><h2 id="garden-heading" data-i18n="todayPatch">Today in the patch</h2></div>
+            <p data-i18n="choosePlant">Choose a plant to see its story</p>
           </div>
-          <div id="garden-field" class="garden-field" aria-label="The current Florii garden">
+          <div id="garden-field" class="garden-field" data-i18n-aria-label="currentGarden" aria-label="The current Florii garden">
             <img class="garden-backdrop" src="/assets/garden/garden-base.webp" alt="" aria-hidden="true" />
             <div class="season-wash" aria-hidden="true"></div>
             <div class="time-wash" aria-hidden="true"></div>
@@ -53,63 +54,63 @@
             <div class="weather-art weather-rain" aria-hidden="true"></div>
             <div class="weather-art weather-frost" aria-hidden="true"></div>
             <div class="storm-flash" aria-hidden="true"></div>
-            <p id="weather-caption" class="weather-caption">quiet weather</p>
+            <p id="weather-caption" class="weather-caption" data-i18n="quietWeather">quiet weather</p>
             <div id="plants-stage" class="plants-stage"></div>
             <div class="foreground-shade" aria-hidden="true"></div>
-            <p id="empty-message" class="empty-message">Open soil. A beginning, not an absence.</p>
+            <p id="empty-message" class="empty-message" data-i18n="openSoil">Open soil. A beginning, not an absence.</p>
           </div>
-          <footer class="garden-footer"><span id="season-label">spring light</span><span id="plant-count">0 plants</span></footer>
+          <footer class="garden-footer"><span id="season-label" data-i18n="springLight">spring light</span><span id="plant-count" data-i18n="zeroPlants">0 plants</span></footer>
         </article>
 
-        <aside class="today-panel" aria-label="Garden conditions">
+        <aside class="today-panel" data-i18n-aria-label="gardenConditions" aria-label="Garden conditions">
           <article class="weather-card">
-            <div class="card-topline"><p class="label">today's weather</p><span id="weather-condition">quiet</span></div>
+            <div class="card-topline"><p class="label" data-i18n="todaysWeather">today's weather</p><span id="weather-condition" data-i18n="quiet">quiet</span></div>
             <div class="weather-main"><span id="weather-icon" aria-hidden="true">◌</span><strong id="temperature">—°</strong></div>
-            <p id="weather-detail">The garden is making its own weather.</p>
+            <p id="weather-detail" data-i18n="weatherDetailSimulated">The garden is making its own weather.</p>
           </article>
           <article class="condition-card">
-            <p class="label">garden character</p>
+            <p class="label" data-i18n="gardenCharacter">garden character</p>
             <dl class="measurements">
-              <div><dt><i class="meter-icon soil-icon">●</i> soil moisture</dt><dd id="soil-value">—</dd></div>
-              <div><dt><i class="meter-icon wild-icon">✣</i> biodiversity</dt><dd id="wild-value">—</dd></div>
-              <div><dt><i class="meter-icon quiet-icon">◌</i> tranquility</dt><dd id="quiet-value">—</dd></div>
+              <div><dt><i class="meter-icon soil-icon">●</i> <span data-i18n="soilMoisture">soil moisture</span></dt><dd id="soil-value">—</dd></div>
+              <div><dt><i class="meter-icon wild-icon">✣</i> <span data-i18n="biodiversity">biodiversity</span></dt><dd id="wild-value">—</dd></div>
+              <div><dt><i class="meter-icon quiet-icon">◌</i> <span data-i18n="tranquility">tranquility</span></dt><dd id="quiet-value">—</dd></div>
             </dl>
           </article>
           <article class="chapter-card">
-            <div class="chapter-header"><p class="label">first chapter</p><strong id="chapter-percent">0%</strong></div>
-            <div class="progress" role="progressbar" aria-label="First chapter progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="chapter-progress"></i></div>
-            <p id="chapter-copy">The first season has only just begun.</p><span>No streaks. No missed days.</span>
+            <div class="chapter-header"><p class="label" data-i18n="firstChapter">first chapter</p><strong id="chapter-percent">0%</strong></div>
+            <div class="progress" role="progressbar" data-i18n-aria-label="firstChapterProgress" aria-label="First chapter progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="chapter-progress"></i></div>
+            <p id="chapter-copy" data-i18n="firstSeason">The first season has only just begun.</p>
           </article>
         </aside>
       </section>
 
       <section id="plants" class="collection-section" aria-labelledby="collection-heading">
         <header class="section-heading wide-heading">
-          <div><p class="eyebrow">The ones growing here</p><h2 id="collection-heading">Living collection</h2></div>
-          <p>Every seed becomes an individual.</p>
+          <div><p class="eyebrow" data-i18n="collectionEyebrow">The ones growing here</p><h2 id="collection-heading" data-i18n="livingCollection">Living collection</h2></div>
+          <p data-i18n="everySeed">Every seed becomes an individual.</p>
         </header>
-        <div id="plant-collection" class="plant-collection"><p class="soft-empty">The first planted seed will appear here.</p></div>
+        <div id="plant-collection" class="plant-collection"><p class="soft-empty" data-i18n="firstPlanted">The first planted seed will appear here.</p></div>
       </section>
 
       <section id="herbarium" class="herbarium-section" aria-labelledby="herbarium-heading">
         <header class="section-heading herbarium-heading">
-          <div><p class="eyebrow">Every form the garden remembers</p><h2 id="herbarium-heading">Herbarium</h2></div>
-          <div class="herbarium-stats" aria-label="Herbarium progress">
-            <span><strong id="herbarium-species">0 / 12</strong> species</span>
-            <span><strong id="herbarium-variants">0</strong> variations</span>
-            <span><strong id="herbarium-notable">0</strong> notable finds</span>
-            <span><strong id="herbarium-archived">0</strong> transplanted</span>
+          <div><p class="eyebrow" data-i18n="herbariumEyebrow">Every form the garden remembers</p><h2 id="herbarium-heading" data-i18n="herbarium">Herbarium</h2></div>
+          <div class="herbarium-stats" data-i18n-aria-label="herbariumProgress" aria-label="Herbarium progress">
+            <span><strong id="herbarium-species">0 / 12</strong> <span data-i18n="species">species</span></span>
+            <span><strong id="herbarium-variants">0</strong> <span data-i18n="variations">variations</span></span>
+            <span><strong id="herbarium-notable">0</strong> <span data-i18n="notableFinds">notable finds</span></span>
+            <span><strong id="herbarium-archived">0</strong> <span data-i18n="transplanted">transplanted</span></span>
           </div>
         </header>
-        <p class="herbarium-intro">A permanent record of planted, wind-carried, and second-generation flowers. Empty places are discoveries still ahead.</p>
+        <p class="herbarium-intro" data-i18n="herbariumIntro">A permanent record of planted, wind-carried, and second-generation flowers. Empty places are discoveries still ahead.</p>
         <div id="herbarium-grid" class="herbarium-grid"></div>
       </section>
 
       <section id="seeds" class="seed-section" aria-labelledby="seed-heading">
         <header class="section-heading wide-heading">
-          <div><p class="eyebrow">Twelve possible beginnings</p><h2 id="seed-heading">Seed library</h2></div>
-          <div class="season-filters" role="group" aria-label="Filter seeds by season">
-            <button class="active" type="button" data-season-filter="all">all</button><button type="button" data-season-filter="spring">spring</button><button type="button" data-season-filter="summer">summer</button><button type="button" data-season-filter="autumn">autumn</button><button type="button" data-season-filter="winter">winter</button>
+          <div><p class="eyebrow" data-i18n="seedEyebrow">Twelve possible beginnings</p><h2 id="seed-heading" data-i18n="seedLibrary">Seed library</h2></div>
+          <div class="season-filters" role="group" data-i18n-aria-label="filterSeeds" aria-label="Filter seeds by season">
+            <button class="active" type="button" data-season-filter="all" data-i18n="all">all</button><button type="button" data-season-filter="spring" data-i18n="spring">spring</button><button type="button" data-season-filter="summer" data-i18n="summer">summer</button><button type="button" data-season-filter="autumn" data-i18n="autumn">autumn</button><button type="button" data-season-filter="winter" data-i18n="winter">winter</button>
           </div>
         </header>
         <div id="seed-library" class="seed-library"></div>
@@ -117,28 +118,28 @@
 
       <section id="chronicle" class="lower-grid">
         <article class="chronicle-card">
-          <header class="section-heading"><div><p class="eyebrow">What time left behind</p><h2>Garden chronicle</h2></div><span id="entry-count">0 entries</span></header>
+          <header class="section-heading"><div><p class="eyebrow" data-i18n="chronicleEyebrow">What time left behind</p><h2 data-i18n="gardenChronicle">Garden chronicle</h2></div><span id="entry-count" data-i18n="zeroEntries">0 entries</span></header>
           <div id="chronicle-list" class="chronicle"></div>
         </article>
         <aside class="milestone-card">
-          <div class="card-topline"><p class="label">kept moments</p><span>✦</span></div>
-          <div id="milestones" class="milestones"><p class="muted">The first little milestone is still ahead.</p></div>
+          <div class="card-topline"><p class="label" data-i18n="keptMoments">kept moments</p><span>✦</span></div>
+          <div id="milestones" class="milestones"><p class="muted" data-i18n="firstMilestone">The first little milestone is still ahead.</p></div>
         </aside>
       </section>
 
       <footer class="page-footer">
-        <p>Florii grows between conversations.</p>
-        <p><span id="updated-at">Last looked at just now</span> · <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">weather by Open-Meteo</a></p>
+        <p data-i18n="footerLine">Florii grows between conversations.</p>
+        <p><span id="updated-at" data-i18n="lastLooked">Last looked at just now</span> · <a href="https://open-meteo.com/" target="_blank" rel="noreferrer" data-i18n="weatherBy">weather by Open-Meteo</a></p>
       </footer>
     </main>
 
     <dialog id="plant-dialog" class="plant-dialog" aria-labelledby="dialog-plant-name">
-      <button id="dialog-close" class="dialog-close" type="button" aria-label="Close plant details">×</button>
+      <button id="dialog-close" class="dialog-close" type="button" data-i18n-aria-label="closePlant" aria-label="Close plant details">×</button>
       <div id="dialog-portrait" class="dialog-portrait" aria-hidden="true"></div>
       <div class="dialog-copy">
-        <p id="dialog-species" class="eyebrow">Plant</p><h2 id="dialog-plant-name">A small plant</h2>
+        <p id="dialog-species" class="eyebrow" data-i18n="plant">Plant</p><h2 id="dialog-plant-name" data-i18n="smallPlant">A small plant</h2>
         <p id="dialog-description" class="dialog-description"></p>
-        <div id="dialog-swatches" class="swatches" aria-label="Flower colors"></div>
+        <div id="dialog-swatches" class="swatches" data-i18n-aria-label="flowerColors" aria-label="Flower colors"></div>
         <dl id="dialog-facts" class="plant-facts"></dl><div id="dialog-traits" class="trait-list"></div>
         <p id="dialog-family" class="family-note"></p>
       </div>

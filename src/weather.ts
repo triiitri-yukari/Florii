@@ -126,7 +126,7 @@ export async function syncExternalWeather(state: GardenState, force = false): Pr
     latitude: String(config.latitude),
     longitude: String(config.longitude),
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum",
-    past_days: "92",
+    past_days: "30",
     forecast_days: "16",
     timezone: "auto"
   });

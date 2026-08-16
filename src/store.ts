@@ -1,12 +1,19 @@
+import { existsSync } from "node:fs";
 import { copyFile, mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createGarden, ensureHerbarium, ensurePlantPhenotype } from "./engine.js";
 import type { GardenState } from "./types.js";
 
 const LOCK_WAIT_MS = 40;
 const LOCK_TIMEOUT_MS = 5_000;
 const STALE_LOCK_MS = 15_000;
+const moduleDirectory = dirname(fileURLToPath(import.meta.url));
+const sourceProjectDirectory = resolve(moduleDirectory, "..");
+const compiledProjectDirectory = resolve(moduleDirectory, "../..");
+const projectDirectory = existsSync(join(sourceProjectDirectory, "package.json"))
+  ? sourceProjectDirectory
+  : compiledProjectDirectory;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
@@ -15,7 +22,7 @@ function sleep(ms: number): Promise<void> {
 export function defaultDataDirectory(): string {
   return process.env.FLORII_DATA_DIR
     ? resolve(process.env.FLORII_DATA_DIR)
-    : join(homedir(), ".florii");
+    : join(projectDirectory, ".florii");
 }
 
 export class GardenStore {
