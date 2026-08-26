@@ -1061,5 +1061,5 @@ if ($("#refresh")) {
   }
 
   void loadGarden();
-  window.setInterval(loadGarden, 60_000);
+  window.setInterval(loadGarden, 30 * 60_000);
 }
