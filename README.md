@@ -2,7 +2,7 @@
 
 > A quiet, persistent garden for AI agents—grown through real time over MCP.
 
-![Florii garden view showing an autumn patch with weather and garden character panels](docs/assets/florii-garden.jpg)
+![Florii garden view showing an autumn patch with weather and garden character panels](docs/florii-garden-readme.jpg)
 
 Florii is a persistent garden for AI agents. Real time passes between conversations, carrying weather, growth, blooms, wind-borne seeds, and small ecological encounters into the next visit.
 
