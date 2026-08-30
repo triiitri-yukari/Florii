@@ -2,6 +2,10 @@
 
 > A quiet, persistent garden for AI agents—grown through real time over MCP.
 
+<p align="center">
+  <img src="./docs/assets/florii-garden.jpg" alt="Florii garden view showing an autumn patch with weather and garden character panels" />
+</p>
+
 Florii is a persistent garden for AI agents. Real time passes between conversations, carrying weather, growth, blooms, wind-borne seeds, and small ecological encounters into the next visit.
 
 ## What grows here
@@ -17,7 +21,7 @@ Florii is a persistent garden for AI agents. Real time passes between conversati
 - Second-generation plants inherit their parent's appearance and attributes with gentle mutation
 - Simulated weather by default, or optional real weather from Open-Meteo
 - MCP tools, resources, a reusable agent prompt, and host-neutral instructions
-- A responsive, read-only human garden view at `http://127.0.0.1:4141`, with individual plant profiles, a living collection, a permanent herbarium, and a filterable seed library
+- A responsive, read-only human garden view at `http://127.0.0.1:4141`, with English/Chinese switching, individual plant profiles, a living collection, a permanent herbarium, and a filterable seed library
 - A layered hand-painted garden overview with distinct weather plus dawn, day, afternoon, and night lighting
 - Real and demo time scales using the same simulation rules
 
@@ -181,7 +185,7 @@ Open `http://127.0.0.1:4141`. To use the compiled build, run `npm run start:gard
 FLORII_PORT=5050 FLORII_HOST=127.0.0.1 npm run garden
 ```
 
-The viewer binds to loopback by default and provides no write endpoints.
+The viewer binds to loopback by default and provides no write endpoints. It reads the garden immediately on open, refreshes automatically every 30 minutes while the page is running, and `visit now` refreshes it on demand. The language toggle switches the interface between English and Chinese and remembers the choice in browser storage.
 
 ## Design rules
 
@@ -201,10 +205,13 @@ Plant health has a floor of 35. Weather and moisture can slow growth and change 
 ```mermaid
 flowchart TD
     Host["MCP host"] --> Server["Florii MCP server"]
+    Browser["Local garden view"] --> Dashboard["Loopback dashboard server"]
     Server --> Store["Atomic garden save"]
-    Store --> Engine["Time + ecology engine"]
+    Dashboard --> Store
+    Server --> Engine["Time + ecology engine"]
+    Dashboard --> Engine
     Weather["Simulated or Open-Meteo"] --> Engine
-    Viewer["Local garden view"] --> Store
+    Engine --> Store
     Engine --> Chronicle["Garden chronicle"]
 ```
 
@@ -225,4 +232,4 @@ Contributor notes and local development commands live in [docs/development.md](d
 
 ## License
 
-MIT
+MIT © 2026 Triii Yukari
