@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { copyFile, mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createGarden, ensureHerbarium, ensurePlantPhenotype } from "./engine.js";
+import { createGarden } from "./engine.js";
 import type { GardenState } from "./types.js";
 
 const LOCK_WAIT_MS = 40;
@@ -17,6 +17,37 @@ const projectDirectory = existsSync(join(sourceProjectDirectory, "package.json")
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isCurrentV1Garden(value: unknown): value is GardenState {
+  if (!isRecord(value)) return false;
+  if (value.schemaVersion !== 1 || typeof value.revision !== "number") return false;
+  if (!Array.isArray(value.plants) || !Array.isArray(value.chronicle)) return false;
+  if (!Array.isArray(value.weather) || !Array.isArray(value.events) || !Array.isArray(value.milestones)) return false;
+
+  const herbarium = value.herbarium;
+  if (
+    !isRecord(herbarium) ||
+    !Array.isArray(herbarium.registeredPlantIds) ||
+    !Array.isArray(herbarium.species) ||
+    !Array.isArray(herbarium.archivedPlants)
+  ) return false;
+
+  const weatherConfig = value.weatherConfig;
+  if (
+    !isRecord(weatherConfig) ||
+    (weatherConfig.source !== "simulated" && weatherConfig.source !== "open-meteo") ||
+    !Object.prototype.hasOwnProperty.call(weatherConfig, "timezone") ||
+    !Array.isArray(weatherConfig.cachedDays)
+  ) return false;
+
+  return value.plants.every(
+    (plant) => isRecord(plant) && isRecord(plant.phenotype) && Array.isArray(plant.traits)
+  );
 }
 
 export function defaultDataDirectory(): string {
@@ -70,9 +101,9 @@ export class GardenStore {
 
   private async parseSave(path: string): Promise<GardenState> {
     const content = await readFile(path, "utf8");
-    const parsed = JSON.parse(content) as GardenState;
-    if (parsed.schemaVersion !== 1 || !Array.isArray(parsed.plants) || !Array.isArray(parsed.chronicle)) {
-      throw new Error("Unsupported or damaged garden data.");
+    const parsed = JSON.parse(content) as unknown;
+    if (!isCurrentV1Garden(parsed)) {
+      throw new Error("Unsupported or damaged Florii v1 garden data. Saves from older test builds are not migrated.");
     }
     return parsed;
   }
@@ -95,34 +126,6 @@ export class GardenStore {
     }
   }
 
-  private migrate(state: GardenState): boolean {
-    let changed = false;
-    if (!state.weatherConfig) {
-      state.weatherConfig = {
-        source: "simulated",
-        latitude: null,
-        longitude: null,
-        placeName: null,
-        timezone: null,
-        lastSyncAt: null,
-        cachedDays: [],
-        lastError: null
-      };
-      changed = true;
-    }
-    const legacyWeather = state.weatherConfig as GardenState["weatherConfig"] & { timezone?: string | null };
-    if (legacyWeather.timezone === undefined) {
-      legacyWeather.timezone = null;
-      changed = true;
-    }
-    for (const plant of state.plants) {
-      if (!plant.phenotype) changed = true;
-      ensurePlantPhenotype(state, plant);
-    }
-    if (ensureHerbarium(state)) changed = true;
-    return changed;
-  }
-
   private async writeUnlocked(state: GardenState): Promise<void> {
     state.revision += 1;
     const temporaryPath = `${this.path}.${process.pid}.${Date.now()}.tmp`;
@@ -140,8 +143,7 @@ export class GardenStore {
     const release = await this.acquireLock();
     try {
       const state = await this.readUnlocked();
-      const migrated = this.migrate(state);
-    if (state.revision === 0 || migrated) await this.writeUnlocked(state);
+      if (state.revision === 0) await this.writeUnlocked(state);
       return structuredClone(state);
     } finally {
       await release();
@@ -152,7 +154,6 @@ export class GardenStore {
     const release = await this.acquireLock();
     try {
       const state = await this.readUnlocked();
-      this.migrate(state);
       const result = await mutate(state);
       await this.writeUnlocked(state);
       return { state: structuredClone(state), result };
