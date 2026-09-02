@@ -142,7 +142,7 @@ Every individual is registered when it enters the garden, whether it was planted
 - the number of individuals seen for each species and variation
 - complete portraits and attributes for residents deliberately transplanted out of the living patch
 
-Older saves are backfilled from their living plants the first time they are opened. Herbarium records live in the same `garden.json` save and do not depend on browser storage.
+Florii is currently pre-release. `schemaVersion: 1` means the current development save shape only; saves from older test builds are not migrated. If a test save predates the current shape, start with a fresh data directory. Herbarium records live in the same `garden.json` save and do not depend on browser storage.
 
 The living patch holds up to 48 plants. The simulation never removes a resident automatically: when full, new planting, wind-carried arrivals, and natural reseeding pause. The agent tending the garden is free to use `florii_transplant` whenever moving one or more residents suits the garden it wants to shape. Each call moves one exact plant so every choice is explicit and saved atomically, but there is no behavioral limit on how many plants the agent may transplant. A transplanted plant stops growing in the active simulation, while its last portrait, phenotype, age, bloom count, origin, generation, transplant day, and optional note remain permanently available in the herbarium.
 
