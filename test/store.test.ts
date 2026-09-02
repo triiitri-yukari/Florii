@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { GardenStore } from "../src/store.js";
 import { createGarden, plantSeed } from "../src/engine.js";
-import type { GardenState, Plant } from "../src/types.js";
+import type { GardenState } from "../src/types.js";
 
 test("the store serializes concurrent writes and leaves valid JSON", async () => {
   const directory = await mkdtemp(join(tmpdir(), "florii-store-"));
@@ -60,25 +60,20 @@ test("the store recovers from the backup when the primary is missing", async () 
   assert.equal(recovered.name, "Kept in reserve");
 });
 
-test("older saves receive stable phenotypes when loaded", async () => {
+test("the store rejects saves from older test builds instead of migrating them", async () => {
   const directory = await mkdtemp(join(tmpdir(), "florii-store-"));
   const store = new GardenStore(directory);
   const at = new Date("2026-08-12T00:00:00.000Z");
   const garden = createGarden(at, { seed: 321 });
-  const plant = plantSeed(garden, "rainmint", {}, at);
-  delete (plant as Partial<Plant>).phenotype;
-  delete (garden as Partial<GardenState>).herbarium;
-  plant.traits = ["old-trait"];
-  garden.revision = 5;
-  await writeFile(store.path, JSON.stringify(garden), "utf8");
+  plantSeed(garden, "rainmint", {}, at);
 
-  const migrated = await store.read();
-  assert.ok(migrated.plants[0]?.phenotype.primaryColor.startsWith("#"));
-  assert.notDeepEqual(migrated.plants[0]?.traits, ["old-trait"]);
-  assert.match(await readFile(store.path, "utf8"), /"phenotype"/);
-  assert.equal(migrated.herbarium.species[0]?.species, "rainmint");
-  assert.equal(migrated.herbarium.species[0]?.individualsSeen, 1);
-  assert.deepEqual(migrated.herbarium.archivedPlants, []);
-  assert.match(await readFile(store.path, "utf8"), /"herbarium"/);
-  assert.equal(migrated.revision, 6);
+  const oldShape = structuredClone(garden) as unknown as Record<string, unknown>;
+  const oldPlants = oldShape.plants as Array<Record<string, unknown>>;
+  if (oldPlants[0]) delete oldPlants[0].phenotype;
+  delete oldShape.herbarium;
+  await writeFile(store.path, JSON.stringify(oldShape), "utf8");
+
+  await assert.rejects(store.read(), /Saves from older test builds are not migrated/);
+  const unchanged = JSON.parse(await readFile(store.path, "utf8")) as Record<string, unknown>;
+  assert.equal(unchanged.herbarium, undefined);
 });
